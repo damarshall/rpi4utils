@@ -1,0 +1,94 @@
+# dmarshall - notes on things I tried
+
+/boot/cmdline.txt (from Raspian):
+dwc_otg.lpm_enabled=0 console=serial0,115200 console=tty1 root=/dev/mmcblk0p7 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet splash plymouth.ignore-serial-consoles
+
+from guide:
+dwc_otg.fiq_fix_enable=2 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait rootflags=noload net.ifnames=0
+
+# but need to append the following for LXC, Kubernetes etc.:
+ cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory
+
+# official line ubuntu 18.04.3
+net.ifnames=0 dwc_otg.lpm_enable=0 console=ttyAMA0,115200 console=tty1 root=/dev/mmcblk0p2 rootfyystype=ext4 elevator=deadline rootwait
+
+# final /boot/firmware/cmdline.txt for boot with USB root
+dwc_otg.fiq_fix_enable=2 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 console=tty1 root=/dev/sda2 rootfstype=ext4 rootwait rootflags=noload net.ifnames=0 cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory
+
+#prevent kernel updates - this is a temporary measure to stop Ubuntu updates from overwriting with old boot/firmware
+sudo apt-mark hold linux-firmware-raspi2 linux-headers-4.15.0-1041-raspi2 linux-headers-raspi2 linux-image-4.15.0-1041-raspi2 linux-image-raspi2 linux-modules-4.15.0-1041-raspi2 linux-raspi2 linux-raspi2-headers-4.15.0-1041
+
+# install useful RPi utilities such as vcgencmd
+sudo add-apt-repository ppa:ubuntu-raspi2/ppa
+sudo apt-get update
+sudo apt-get install libraspberrypi-bin
+
+
+# update firmware for better thermal perf. (reduce 300mw to USB3)
+$ unzip vl805_update_0137a8.zip
+$ chmod a+x vl805
+$ sudo ./vl805 -w vl805_fw_0137a8.bin
+$ sudo reboot
+
+# create an image from a bootable microSD card to be used to flash another
+# make sure card is not mounted and that /dev/sda is the correct device (check dmesg after inserting card):
+sudo dd if=/dev/sda conv=sync,noerror status=progress bs=1M | gzip -c > pi4-bionic-sdcard.img.gz
+
+# the utility gnome-disks (from package gnome-disk-utility) is also good for creating images, resizing partitions etc.
+
+# early attempt at preparing cloud-init data for instance initialization
+ sudo mkfs.vfat -n cidata -C seed.img 256
+sudo mcopy -oi seed.img user-data meta-data network-config ::
+# now get a pre-installed ubuntu image and create an additional partition for seed.img content
+cp ubuntu-18.04.3-preinstalled-server-armhf+raspi3.img.xz damtest.img.xz
+unxz damtest.img.xz
+fdisk damtest.img
+# use the 'p' option to print the partition table so sizes are available
+
+dd if=/dev/zero of=damtestcloudinit.img iflag=fullblock bs=1M count=2560 && sync
+fdisk damtestcloudinit.img
+
+# sizes and types for boot partition and root partition are given from before
+# create a small 1M 2048 sector VFAT (type 'c') between the two for cidata
+
+# alternatively...
+sudo losetup loop26 damtestcloudinit.img 
+sudo -H gparted /dev/loop26
+# create and format partitions. Don't forget flags boot,lba on boot partition 256MB
+# CIDATA partition should be FAT32
+# use kpartx to mount on mapper loopback devices per partition, then dd to copy:
+sudo kpartx -av damtestcloudinit.img 
+add map loop26p1 (253:0): 0 524288 linear 7:26 2048
+add map loop26p2 (253:1): 0 67584 linear 7:26 526336
+add map loop26p3 (253:2): 0 4648960 linear 7:26 593920
+
+sudo kpartx -av damtest.img 
+add map loop27p1 (253:3): 0 524288 linear 7:27 2048
+add map loop27p2 (253:4): 0 3999316 linear 7:27 526336
+
+sudo dd if=/dev/mapper/loop27p1 of=/dev/mapper/loop26p1 bs=1M
+sudo dd if=/dev/mapper/loop27p2 of=/dev/mapper/loop26p3 bs=1M
+sudo dd if=seed.img of=/dev/mapper/loop26p2 bs=1M
+sudo kpartx -dv damtest.img
+sudo kpartx -dv damtestcloudinit.img
+# then flash a microSD and boot
+
+# that is all way to complicated - here's a far simpler method.
+# All we need is a VFAT formatted volume named 'cidata' that can be found and mounted at first boot.
+# We do this by using a USB flashdrive. Reformat it, create a single 32MB (minimal size) VFAT volume named 'cidata'
+# and copy the contents of the cloud directory into the root directory on that partition
+# ensure the thumbdrive is in a USB3 slot and the microSD card has the modified Ubuntu image.
+
+
+
+#preparing a copy of the Ubuntu image with pi4 current firmware:
+cp official-ubuntu-image.img.xz aci-disk-image.img.xz
+unxz aci-disk-image.img.xz 
+sudo kpartx -av aci-disk-image.img
+sudo mount -o loop /dev/mapper/loop26p1 /mnt
+# copy contents from firmware-master/boot to replace those in /mnt
+sudo umount /mnt
+sudo kpartx -d aci-disk-image.img
+xz -vz aci-disk-image.img
+
+# flash content of the drive with balenaEtcher
