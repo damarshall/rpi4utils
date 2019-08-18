@@ -8,7 +8,7 @@ Model | Capacity | Cost | Relative Performance
 Sandisk Ultra SDCard A1 | 32GB | $7 | 1,078
 Sandisk Ultra Fit USB flashdrive | 128GB | $19 | 1,393
 Kingston A400 (+cable) | 120GB | $32 | 7,533
-WD Blue SN500 NVMe (+adapter) | 250GB | $84 | TBD
+WD Blue SN500 NVMe (+adapter) | 250GB | $94 | 7,912
 
 N.B. a larger Kingston A400 with 240GB capacity is available for $42 including the USB<->SATA cable.
 

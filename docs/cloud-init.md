@@ -40,17 +40,14 @@ version: 2
 ethernets:
   # opaque ID for physical interfaces, only referred to by other stanzas
   eth0:
-    match:
-      macaddress: dc:a6:32:09:21:b1
-    set-name: eth0
-    dhcp4: false
+    dhcp4: no
     addresses:
-      - 192.168.25.71/24
-    gateway4: 192.168.25.1
+      - 192.168.100.101/24  # private network for cluster
+      - 192.168.1.71/24     # static address on local network
+    gateway4: 192.168.1.1
     nameservers:
       search: [dm.local]
       addresses: [1.1.1.1,2.2.2.2]
-
 ```
 
 ### user-data
@@ -62,7 +59,7 @@ Finally, we clone a simple git repository and use the script to set `dircolors` 
 
 ```
 #cloud-config
-password: Welcome2ACI!
+password: S3creTp@55w0rd?
 chpasswd: { expire: False }
 ssh_pwauth: True
 
@@ -95,7 +92,7 @@ runcmd:
 ```
 
 ## Bugs / Limitations
-We must find the MAC address for the Pi 4's onboard GiG ethernet port by booting with another image supporting DHCP. Once known, an appropriate `user-data` datasource can be generated.
+We must generate a new `cloud-init` datasource and copy it to the USB flasdrive for initial boot of each node. 
 
 ## ToDo
 - write templates for `network-config`, `user-data` and `meta-data`
