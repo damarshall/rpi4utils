@@ -1,6 +1,8 @@
 # I/O Benchmarks
 Credit for this benchmark goes to James Chambers and this [excellent Pi-oriented benchmark script](https://jamesachambers.com/raspberry-pi-storage-benchmarks-2019-benchmarking-script/).
 
+We benchmarked the combinations detailed below. Overall the recommendation is a Kingston A400 SSD with an inexpensive SATA-to-USB-A cable which offers the best overall price-performance. A solid I/O rig is available for around $40 per node.
+
 ## Sandisk Ultra microSD 32GB
 Available [here on Amazon](https://www.amazon.com/gp/product/B00CNYV942/ref=ppx_yo_dt_b_asin_title_o02_s01?ie=UTF8&psc=1) for about $14 for a 2-pack.
 
@@ -29,3 +31,16 @@ So this overall setup is $32 for 120GB or $42 for 240GB (adapter cable + SSD) an
 ![A400 benchmark](images/A400-io-benchmark.png  "A400 benchmark").
 
 This drive delivers more than 9K IOPS on random writes and 15K IOPS on random reads with 4K blocks.
+
+## WD Blue SN500 and SSK NVMe Enclosure
+This was the highest performing and most expensive I/O combination tested.
+The [250GB NVMe m.2 drive](https://www.amazon.com/Blue-SN500-500GB-NVMe-Internal/dp/B07PC59ZDV/ref=sr_1_2?crid=1AJVP7LC8WPYR&keywords=sn500%2Bwd%2Bblue&qid=1566135942&s=gateway&sprefix=sn500%2Caps%2C164&sr=8-2&th=1) is available at Amazon for $55. This is coupled with a [SSK NVMe m.2 drive enclosure](https://www.amazon.com/SSK-Aluminum-Enclosure-Adapter-External/dp/B07MNFH1PX/ref=sr_1_3?crid=1NBANNFW0S0VA&keywords=ssk+nvme+enclosure&qid=1566136043&s=gateway&sprefix=ssk+nvm%2Caps%2C161&sr=8-3) available on Amazon for $29.
+
+You will need a good quality [USB-c to USB 3.1 cable](https://www.amazon.com/AmazonBasics-Type-C-Adapter-Charger-Cable/dp/B01GGKYS6E/ref=sr_1_3?keywords=usb-c+male+to+usb-a+male+cable&qid=1566136634&s=electronics&sr=1-3) ($10 on Amazon). I tested with a cheaper USB-C male to USB-A male adapter, supposedly 3.0 capable but got 1/10th the I/O throughput of the cable above when testing.
+
+
+
+N.B. the drive supports USB3.1 and only comes with a short USB-C cable, so you will additionally need the USB-C male to USB-A male cable to connect. So all in this I/O rig is @ $94/node for 250GB.
+
+![](images/wd500blue.jpg)
+With a weighted performance rating of 7,912 on our I/O benchmark, it is the best tested, but it is not much better than a Kingston A400 available in a 250GB configuration for less than half the price.
