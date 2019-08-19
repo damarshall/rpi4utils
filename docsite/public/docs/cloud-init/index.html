@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>cloud-init Bootstrapping - Raspberry Pi4 Cluster Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <link rel="icon" href="/favicon.png">
+
+  
+  
+  <link rel="stylesheet" href="/css/style.min.7dc335eda7504f93456161f5def735046a15346dd8ee25bedd7d902fbdb43776.css">
+  
+
+  
+
+</head>
+
+<body class='page page-default-single'>
+  <div id="main-menu-mobile" class="main-menu-mobile">
+  <ul>
+    
+    
+    <li class="menu-item-home">
+      <a href="/">
+        <span>Home</span>
+      </a>
+    </li>
+    
+    <li class="menu-item-docs">
+      <a href="/docs/">
+        <span>Docs</span>
+      </a>
+    </li>
+    
+  </ul>
+</div>
+  <div class="wrapper">
+    <div class='header'>
+  <div class="container">
+    <div class="logo">
+      <a href="/"><img alt="Logo" src="/images/logo.svg" /></a>
+    </div>
+    <div class="logo-mobile">
+      <a href="/"><img alt="Logo" src="/images/logo-mobile.svg" /></a>
+    </div>
+    <div id="main-menu" class="main-menu">
+  <ul>
+    
+    
+    <li class="menu-item-home">
+      <a href="/">
+        <span>Home</span>
+      </a>
+    </li>
+    
+    <li class="menu-item-docs">
+      <a href="/docs/">
+        <span>Docs</span>
+      </a>
+    </li>
+    
+  </ul>
+</div>
+    <button id="toggle-main-menu-mobile" class="hamburger hamburger--slider" type="button">
+  <span class="hamburger-box">
+    <span class="hamburger-inner"></span>
+  </span>
+</button>
+  </div>
+</div>
+
+
+    
+    
+    
+    
+    
+    
+
+    
+    <div class="container pt-2 pt-md-6 pb-3 pb-md-6">
+      <div class="row">
+        <div class="col-12 col-md-3 mb-3">
+          <div class="sidebar">
+            
+<div class="docs-menu">
+  <h4>Docs</h4>
+  <ul>
+    
+    <li class="">
+      <a href="/docs/getting-started/">Getting Started</a>
+    </li>
+    
+    <li class="">
+      <a href="/docs/preparing-an-image/">Preparing an Image</a>
+    </li>
+    
+    <li class="active ">
+      <a href="/docs/cloud-init/">cloud-init Bootstrapping</a>
+    </li>
+    
+    <li class="">
+      <a href="/docs/io-benchmarks/">I/O Benchmarks</a>
+    </li>
+    
+    <li class="">
+      <a href="/docs/cases-and-cooling/">Cases and Cooling</a>
+    </li>
+    
+    <li class="">
+      <a href="/docs/poe-testing/">PoE Testing</a>
+    </li>
+    
+  </ul>
+</div>
+
+          </div>
+        </div>
+        <div class="col-12 col-md-9">
+          
+<h1 class="title">cloud-init Bootstrapping</h1>
+<div class="content ">
+  
+
+<p>Cloud vendors and popular distributions use <code>cloud-init</code> scripts to perform actions on first boot such as:</p>
+
+<ul>
+<li>supply a hostname</li>
+<li>supply a network config (beyond DHCP)</li>
+<li>configure the default user</li>
+<li>install additional repos and packages</li>
+</ul>
+
+<p>We will leverage this strategy for a standard repeatable configuration of our Pi 4 leaving it in a well-known state amenable to further automation.</p>
+
+<p>As a Raspberry Pi is a bare-metal device with no lights out management we will supply our <code>cloud-init</code> data using the &ldquo;nocloud&rsquo; strategy. This is done by creating a small vfat parition on a USB flashdrive with a volume name of &lsquo;cidata&rsquo;. On first boot, <code>cloud-init</code> searches for a mountable partition with a volume name of &lsquo;cidata&rsquo; and if found, it will read well-known filenames found and use them as datasources for customization.</p>
+
+<h1 id="preparing-the-usb-flashdrive-cidata-volume">Preparing the USB Flashdrive cidata volume</h1>
+
+<p>All we need is a VFAT formatted volume named &lsquo;cidata&rsquo; that can be found and mounted at first boot.
+We do this by using a USB flashdrive. You can use any thumbdrive to do this, it doesn&rsquo;t need to be expensive or have good performance. Here&rsquo;s an inexpensive <a href="https://www.amazon.com/SanDisk-32GB-Cruzer-Flash-Drive/dp/B07MPCJDXS/ref=sr_1_20?keywords=sandisk+usb+thumb+drive+8gb&amp;qid=1565535563&amp;s=gateway&amp;sr=8-20">Sandisk 32GB Cruzer Fit USB flash drive</a> only $5 on Amazon.</p>
+
+<p>Reformat it, create a single 32MB (minimal size) VFAT volume named &lsquo;cidata&rsquo;. You can use a tool such as <code>gparted</code> to do this simply and quickly. N.B. there should only be a single partition on the flash drive (this is important later when bootstrapping a new Pi 4 with USB3 root drive).</p>
+
+<p>Copy the contents of the cloud directory into the root directory on the &lsquo;cidata&rsquo; partition you created. The sections below describe the content in detail. When you boot for the first time, ensure the thumbdrive is in a USB3 slot and the microSD card has the modified Ubuntu image.</p>
+
+<h1 id="example-script-content">Example Script content</h1>
+
+<h3 id="meta-data">meta-data</h3>
+
+<p>The <code>meta-data</code> file contains <a href="https://cloudinit.readthedocs.io/en/latest/topics/instancedata.html">instance metadata</a> generally of interest to cloud operators. In our minimal pi 4 installation we will use it to create an instance-id and to set the hostname.</p>
+<div class="highlight"><pre class="chroma">instance_id: marshall2019080901
+local-hostname: dm1.pi</pre></div>
+<h3 id="network-config">network-config</h3>
+
+<p>We configure networking via <code>network-config</code>. Here we use v2 syntax which used the <a href="https://netplan.io/">netplan</a> method of network configuration (preferred method in Ubuntu Bionic and later).</p>
+
+<p>In the example below we set a static IP address, gateway and configure DNS. The <code>cloud-init</code> scripts take care of turning this into the appropriate <code>netplan</code> configuration files.</p>
+<div class="highlight"><pre class="chroma">version: 2
+ethernets:
+  # opaque ID for physical interfaces, only referred to by other stanzas
+  eth0:
+    dhcp4: no
+    addresses:
+      - 192.168.100.101/24  # private network for cluster
+      - 192.168.1.71/24     # static address on local network
+    gateway4: 192.168.1.1
+    nameservers:
+      search: [dm.local]
+      addresses: [1.1.1.1,2.2.2.2]</pre></div>
+<h3 id="user-data">user-data</h3>
+
+<p>The instructions in <code>user-data</code> run late in the boot cycle, equivalent to <code>rc.local</code>. We use this file to set a password on the default &lsquo;ubuntu&rsquo; account. We also tell <code>apt</code> to hold updates on kernel-related packages as the official Ubuntu repos will overwrite the pi 4 firmware we prepared for our image. Once pi 4 is officially supported we will be able to unhold these packages, but until then we are frozen with this kernel.</p>
+
+<p>We also add an <code>apt</code> repository for Raspberry-Pi utilities such as the important <code>vcgencmd</code> (e.g. you can measure temperature via the command <code>vcgencmd measure_temp</code>).</p>
+
+<p>Finally, we clone a simple git repository and use the script to set <code>dircolors</code> making our directory listings readable on a console.</p>
+<div class="highlight"><pre class="chroma">#cloud-config
+password: S3creTp@55w0rd?
+chpasswd: { expire: False }
+ssh_pwauth: True
+
+# run commands
+# default: none
+# runcmd contains a list of either lists or a string
+# each item will be executed in order at rc.local like level with
+# output to the console
+# - runcmd only runs during the first boot
+# - if the item is a list, the items will be properly executed as if
+#   passed to execve(3) (with the first arg as the command).
+# - if the item is a string, it will be simply written to the file and
+#   will be interpreted by &#39;sh&#39;
+#
+# Note, that the list has to be proper yaml, so you have to quote
+# any characters yaml would eat (&#39;:&#39; can be problematic)
+runcmd:
+# hold kernel updates and rpi firmware distributed by Ubuntu, it&#39;s not pi 4 compatible yet
+ - [ apt-mark, hold, linux-firmware-raspi2, linux-headers-4.15.0-1041-raspi2, linux-headers-raspi2, linux-image-4.15.0-1041-raspi2, linux-image-raspi2, linux-modules-4.15.0-1041-raspi2, linux-raspi2, linux-raspi2-headers-4.15.0-1041 ]
+# install essential pi tools so you can run commands like &#39;vcgencmd measure_temp&#39;
+ - [ add-apt-repository, -y, &#34;ppa:ubuntu-raspi2/ppa&#34; ]
+ - [ apt-get, install, -y, libraspberrypi-bin ]
+ # Note: Don&#39;t write files to /tmp from cloud-init use /run/somedir instead.
+ # Early boot environments can race systemd-tmpfiles-clean LP: #1707222.
+ #
+ # make directory listings legible and readable
+ - [ git, clone, &#34;https://github.com/huyz/dircolors-solarized&#34;, /home/ubuntu/dircolors-solarized ]
+ - [ ln, -s, /home/ubuntu/dircolors-solarized/dircolors.ansi-universal, /home/ubuntu/.dircolors ]</pre></div>
+<h2 id="bugs-limitations">Bugs / Limitations</h2>
+
+<p>We must generate a new <code>cloud-init</code> datasource and copy it to the USB flasdrive for initial boot of each node.</p>
+
+<h2 id="todo">ToDo</h2>
+
+<ul>
+<li>write templates for <code>network-config</code>, <code>user-data</code> and <code>meta-data</code></li>
+<li>write a generator that can generate instances from templates using a simple datasource such as a <code>.csv</code> for variables</li>
+</ul>
+
+</div>
+</div>
+
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+  <div class="sub-footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <div class="sub-footer-inner">
+          <ul>
+            <li class="zerostatic"><a href="https://www.zerostatic.io">www.zerostatic.io</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/scripts.min.1237ff71925bb8625c97a9af8db4c54525258bedfd7c47493daaff723bea755e.js"></script>
+  
+
+  
+  
+  
+    
+  
+
+
+</body>
+
+</html>

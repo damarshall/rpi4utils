@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>I/O Benchmarks - Raspberry Pi4 Cluster Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <link rel="icon" href="/favicon.png">
+
+  
+  
+  <link rel="stylesheet" href="/css/style.min.7dc335eda7504f93456161f5def735046a15346dd8ee25bedd7d902fbdb43776.css">
+  
+
+  
+
+</head>
+
+<body class='page page-default-single'>
+  <div id="main-menu-mobile" class="main-menu-mobile">
+  <ul>
+    
+    
+    <li class="menu-item-home">
+      <a href="/">
+        <span>Home</span>
+      </a>
+    </li>
+    
+    <li class="menu-item-docs">
+      <a href="/docs/">
+        <span>Docs</span>
+      </a>
+    </li>
+    
+  </ul>
+</div>
+  <div class="wrapper">
+    <div class='header'>
+  <div class="container">
+    <div class="logo">
+      <a href="/"><img alt="Logo" src="/images/logo.svg" /></a>
+    </div>
+    <div class="logo-mobile">
+      <a href="/"><img alt="Logo" src="/images/logo-mobile.svg" /></a>
+    </div>
+    <div id="main-menu" class="main-menu">
+  <ul>
+    
+    
+    <li class="menu-item-home">
+      <a href="/">
+        <span>Home</span>
+      </a>
+    </li>
+    
+    <li class="menu-item-docs">
+      <a href="/docs/">
+        <span>Docs</span>
+      </a>
+    </li>
+    
+  </ul>
+</div>
+    <button id="toggle-main-menu-mobile" class="hamburger hamburger--slider" type="button">
+  <span class="hamburger-box">
+    <span class="hamburger-inner"></span>
+  </span>
+</button>
+  </div>
+</div>
+
+
+    
+    
+    
+    
+    
+    
+
+    
+    <div class="container pt-2 pt-md-6 pb-3 pb-md-6">
+      <div class="row">
+        <div class="col-12 col-md-3 mb-3">
+          <div class="sidebar">
+            
+<div class="docs-menu">
+  <h4>Docs</h4>
+  <ul>
+    
+    <li class="">
+      <a href="/docs/getting-started/">Getting Started</a>
+    </li>
+    
+    <li class="">
+      <a href="/docs/preparing-an-image/">Preparing an Image</a>
+    </li>
+    
+    <li class="">
+      <a href="/docs/cloud-init/">cloud-init Bootstrapping</a>
+    </li>
+    
+    <li class="active ">
+      <a href="/docs/io-benchmarks/">I/O Benchmarks</a>
+    </li>
+    
+    <li class="">
+      <a href="/docs/cases-and-cooling/">Cases and Cooling</a>
+    </li>
+    
+    <li class="">
+      <a href="/docs/poe-testing/">PoE Testing</a>
+    </li>
+    
+  </ul>
+</div>
+
+          </div>
+        </div>
+        <div class="col-12 col-md-9">
+          
+<h1 class="title">I/O Benchmarks</h1>
+<div class="content ">
+  
+
+<p>Credit for this benchmark goes to James Chambers and this <a href="https://jamesachambers.com/raspberry-pi-storage-benchmarks-2019-benchmarking-script/">excellent Pi-oriented benchmark script</a>.</p>
+
+<p>We benchmarked the combinations detailed below. Overall the recommendation is a Kingston A400 SSD with an inexpensive SATA-to-USB-A cable which offers the best overall price-performance. A solid I/O rig is available for around $40 per node.</p>
+
+<h2 id="sandisk-ultra-microsd-32gb">Sandisk Ultra microSD 32GB</h2>
+
+<p>Available <a href="https://www.amazon.com/gp/product/B00CNYV942/ref=ppx_yo_dt_b_asin_title_o02_s01?ie=UTF8&amp;psc=1">here on Amazon</a> for about $14 for a 2-pack.</p>
+
+<p>Scores a baseline 1,078 on the I/O benchmark:</p>
+
+<p><img src="images/sandisk-ultra-sd-io-benchmark.png" alt="Sandisk Ultra SD benchmark" title="Sandisk Ultra SD benchmark" /></p>
+
+<p>We see read performance is adequate but the device performs poorly on random writes.
+This is an excellent low-cost bootable microSD for experimental purposes.</p>
+
+<h2 id="sandisk-ultra-fit-usb-flash-drive-128gb">Sandisk Ultra Fit USB Flash Drive 128GB</h2>
+
+<p>Available <a href="https://www.amazon.com/SanDisk-128GB-Ultra-Flash-Drive/dp/B07855LJ99/ref=sr_1_1?crid=1QGB25GB7188T&amp;keywords=sandisk+ultra+fit+128gb&amp;qid=1565120868&amp;s=gateway&amp;sprefix=sandisk+ultra+fit%2Caps%2C175&amp;sr=8-1">here on Amazon</a> for about $18,</p>
+
+<p>scores a better 1,393 on the I/O benchmark:</p>
+
+<p><img src="images/sandisk-ultra-usb-io-benchmark.png" alt="Sandisk Ultra Fit" title="Sandisk Ultra Fit" />.</p>
+
+<p>This is an interesting result. Read performance is a notch better than the microSD card, however random write performance is much worse.</p>
+
+<h2 id="kingston-a400-2-5-ssd-120gb">Kingston A400 2.5&rdquo; SSD 120GB</h2>
+
+<p>This is device gives remarkably good I/O performance for a small price.
+The 120GB drive is <a href="https://www.amazon.com/dp/B01N6JQS8C/ref=twister_B07Q8TL285?_encoding=UTF8&amp;psc=1">available on Amazon</a> . There&rsquo;s a 240GB version available for $10 more. You&rsquo;ll need a compatible USB 3 &lt;-&gt; SATA cable, and <a href="https://www.amazon.com/StarTech-com-SATA-USB-Cable-USB3S2SAT3CB/dp/B00HJZJI84/ref=sr_1_3?crid=9VR8VCHUUL00&amp;keywords=startech+usb+sata+adapter&amp;qid=1565121503&amp;s=gateway&amp;sprefix=startech+usb+sata+%2Celectronics%2C151&amp;sr=8-3">this one from Startech</a> works well for $10.</p>
+
+<p>So this overall setup is $32 for 120GB or $42 for 240GB (adapter cable + SSD) and gives a credible 7,533 on the I/O benchmark:</p>
+
+<p><img src="images/A400-io-benchmark.png" alt="A400 benchmark" title="A400 benchmark" />.</p>
+
+<p>This drive delivers more than 9K IOPS on random writes and 15K IOPS on random reads with 4K blocks.</p>
+
+<h2 id="wd-blue-sn500-and-ssk-nvme-enclosure">WD Blue SN500 and SSK NVMe Enclosure</h2>
+
+<p>This was the highest performing and most expensive I/O combination tested.
+The <a href="https://www.amazon.com/Blue-SN500-500GB-NVMe-Internal/dp/B07PC59ZDV/ref=sr_1_2?crid=1AJVP7LC8WPYR&amp;keywords=sn500%2Bwd%2Bblue&amp;qid=1566135942&amp;s=gateway&amp;sprefix=sn500%2Caps%2C164&amp;sr=8-2&amp;th=1">250GB NVMe m.2 drive</a> is available at Amazon for $55. This is coupled with a <a href="https://www.amazon.com/SSK-Aluminum-Enclosure-Adapter-External/dp/B07MNFH1PX/ref=sr_1_3?crid=1NBANNFW0S0VA&amp;keywords=ssk+nvme+enclosure&amp;qid=1566136043&amp;s=gateway&amp;sprefix=ssk+nvm%2Caps%2C161&amp;sr=8-3">SSK NVMe m.2 drive enclosure</a> available on Amazon for $29.</p>
+
+<p>You will need a good quality <a href="https://www.amazon.com/AmazonBasics-Type-C-Adapter-Charger-Cable/dp/B01GGKYS6E/ref=sr_1_3?keywords=usb-c+male+to+usb-a+male+cable&amp;qid=1566136634&amp;s=electronics&amp;sr=1-3">USB-c to USB 3.1 cable</a> ($10 on Amazon). I tested with a cheaper USB-C male to USB-A male adapter, supposedly 3.0 capable but got 1/10th the I/O throughput of the cable above when testing.</p>
+
+<p>N.B. the drive supports USB3.1 and only comes with a short USB-C cable, so you will additionally need the USB-C male to USB-A male cable to connect. So all in this I/O rig is @ $94/node for 250GB.</p>
+
+<p><img src="images/wd500blue.jpg" alt="" /></p>
+
+<p>With a weighted performance rating of 7,912 on our I/O benchmark, it is the best tested, but it is not much better than a Kingston A400 available in a 250GB configuration for less than half the price.</p>
+
+</div>
+</div>
+
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+  <div class="sub-footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <div class="sub-footer-inner">
+          <ul>
+            <li class="zerostatic"><a href="https://www.zerostatic.io">www.zerostatic.io</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/scripts.min.1237ff71925bb8625c97a9af8db4c54525258bedfd7c47493daaff723bea755e.js"></script>
+  
+
+  
+  
+  
+    
+  
+
+
+</body>
+
+</html>
