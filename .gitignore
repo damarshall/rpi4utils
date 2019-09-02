@@ -4,6 +4,7 @@
 *.dll
 *.so
 *.dylib
+*.xz
 
 # Test binary, build with `go test -c`
 *.test
@@ -14,6 +15,11 @@
 docsite/public/
 *.zip
 images/
+ubuntu-4-pi/firmware-master/
+ubuntu-4-pi/firmware-nonfree/
+ubuntu-4-pi/rpi-linux/
+ubuntu-4-pi/rpi-tools/
+ubuntu-4-pi/toolchains/
 
 # local files
 Storage.sh
