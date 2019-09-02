@@ -18,7 +18,7 @@ ssh_pwauth: True
 # any characters yaml would eat (':' can be problematic)
 runcmd:
 # hold kernel updates and rpi firmware distributed by Ubuntu, it's not pi 4 compatible yet
- - [ apt-mark, hold, linux-firmware-raspi2, linux-headers-4.15.0-1041-raspi2, linux-headers-raspi2, linux-image-4.15.0-1041-raspi2, linux-image-raspi2, linux-modules-4.15.0-1041-raspi2, linux-raspi2, linux-raspi2-headers-4.15.0-1041 ]
+ - [ apt-mark, hold, linux-firmware-raspi2, linux-headers-raspi2, linux-image-raspi2, linux-raspi2 ]
 # install essential pi tools so you can run commands like 'vcgencmd measure_temp'
  - [ add-apt-repository, -y, "ppa:ubuntu-raspi2/ppa" ]
  - [ apt-get, install, -y, libraspberrypi-bin ]
