@@ -1,4 +1,4 @@
-BASEDIR=~/ubuntu-4-pi
+BASEDIR=`pwd`
 TOOLCHAIN="$BASEDIR/toolchains/aarch64"
 
 cd $BASEDIR/rpi-linux
