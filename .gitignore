@@ -12,3 +12,8 @@
 *.out
 
 docsite/public/
+*.zip
+images/
+
+# local files
+Storage.sh
