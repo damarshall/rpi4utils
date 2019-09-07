@@ -1,0 +1,59 @@
+#!/bin/bash
+. ~/.rpicrc
+
+
+
+temp() {
+    for node in $rpnodes
+    do
+       oval=`ssh -l ubuntu $node vcgencmd measure_temp`
+       printf "%s:" $node
+       printf " %s" $oval
+       printf "\n"
+    done
+}
+
+load() {
+    for node in $rpnodes
+    do
+       oval=`ssh -l ubuntu $node cat /proc/loadavg`
+       printf "%s:" $node
+       printf " %s" $oval
+       printf "\n"
+    done
+}
+
+shutdown() {
+    for node in $rpnodes
+    do
+       oval=`ssh -l ubuntu $node sudo shutdown -h +1`
+       printf "%s:" $node
+       printf " %s" $oval
+       printf "\n"
+    done
+}
+
+help() {
+	printf "Usage: rpic <command> (options)\n"
+    printf "\tload: shows load average per node\n"
+    printf "\ttemp: shows temperature per node\n"
+    printf "\tshutdown: shuts down all nodes\n"
+}
+
+case "$1" in
+  temp)
+    temp
+    ;;
+  load)
+    load
+    ;;
+  help)
+    help
+    ;;
+  shutdown)
+    shutdown
+    ;;
+  *)
+    help
+    exit 1
+esac
