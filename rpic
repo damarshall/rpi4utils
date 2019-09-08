@@ -1,59 +1,109 @@
 #!/bin/bash
+#
+# Simple wrapper to perform an action on several (or all) nodes in a cluster
+#
+# You can set defaults in ~/.rpicrc 
+# e.g.:  RPNODES="pi1 pi2 pi3"
+#
+# alternatively you can override and pass in a subset of node names on the command line:
+#  	RPNODES="pi3 pi4 pi5" rpic <command>
+#
 . ~/.rpicrc
 
-
-
 temp() {
-    for node in $rpnodes
+    for node in $RPNODES
     do
-       oval=`ssh -l ubuntu $node vcgencmd measure_temp`
-       printf "%s:" $node
-       printf " %s" $oval
-       printf "\n"
+    	oval=`ssh -l $RPUSER $node vcgencmd measure_temp`
+       	printf "%s:" $node
+       	printf " %s" $oval
+       	printf "\n"
     done
 }
 
 load() {
-    for node in $rpnodes
+    for node in $RPNODES
     do
-       oval=`ssh -l ubuntu $node cat /proc/loadavg`
-       printf "%s:" $node
-       printf " %s" $oval
-       printf "\n"
+       	oval=`ssh -l $RPUSER $node cat /proc/loadavg`
+       	printf "%s:" $node
+       	printf " %s" $oval
+       	printf "\n"
     done
 }
 
 shutdown() {
-    for node in $rpnodes
+    for node in $RPNODES
     do
-       oval=`ssh -l ubuntu $node sudo shutdown -h +1`
-       printf "%s:" $node
-       printf " %s" $oval
-       printf "\n"
+       	oval=`ssh -l $RPUSER $node sudo shutdown -h +1`
+       	printf "%s:" $node
+       	printf " %s" $oval
+       	printf "\n"
     done
 }
 
-help() {
+run() {
+	for node in $RPNODES
+	do
+		printf "%s:" $node
+		oval=`ssh -l $RPUSER $node $@`
+		printf " %s" $oval
+		printf "\n"
+	done
+}
+
+rexec() {
+	for node in $RPNODES
+	do
+		printf "\n%s:" $node
+		oval=`ssh -l $RPUSER $node /bin/bash < $2`
+		printf " %s" $oval
+		printf "\n"
+	done
+}
+
+suexec() {
+	for node in $RPNODES
+	do
+		printf "\n%s:" $node
+		oval=`ssh -l $RPUSER $node sudo /bin/bash < $2`
+		printf " %s" $oval
+		printf "\n"
+	done
+}
+
+rhelp() {
 	printf "Usage: rpic <command> (options)\n"
+    printf "\nexec: 'rpic exec scriptfile' runs local scriptfile per node\n"
     printf "\tload: shows load average per node\n"
-    printf "\ttemp: shows temperature per node\n"
+    printf "\trun: 'rpic run command line' runs 'command line' via ssh per node\n"
     printf "\tshutdown: shuts down all nodes\n"
+    printf "\nsuexec: 'rpic suexec scriptfile' runs local scriptfile as su per node\n"
+    printf "\ttemp: shows temperature per node\n"
 }
 
 case "$1" in
-  temp)
-    temp
-    ;;
-  load)
-    load
-    ;;
-  help)
-    help
-    ;;
-  shutdown)
-    shutdown
-    ;;
-  *)
-    help
-    exit 1
+  	exec)
+		rexec $@
+		;;
+	help)
+    	rhelp
+    	;;
+  	load)
+    	load
+    	;;
+	run)
+		shift
+		run $@
+		;;
+  	shutdown)
+    	shutdown
+    	;;
+	suexec)
+		suexec $@
+		;;
+  	temp)
+    	temp
+    	;;
+  	*)
+    	rhelp
+    	exit 1
 esac
