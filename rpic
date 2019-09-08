@@ -33,8 +33,8 @@ load() {
 shutdown() {
     for node in $RPNODES
     do
+       	printf "%s: " $node
        	oval=`ssh -l $RPUSER $node sudo shutdown -h +1`
-       	printf "%s:" $node
        	printf " %s" $oval
        	printf "\n"
     done
