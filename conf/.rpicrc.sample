@@ -1,0 +1,8 @@
+if [ -z "$RPNODES" ]
+then
+	RPNODES="dm1 dm2 dm3 dm4"
+fi
+if [ -z "$RPUSER" ]
+then
+	RPUSER="ubuntu"
+fi
