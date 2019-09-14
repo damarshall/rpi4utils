@@ -1,6 +1,6 @@
 if [ -z "$RPNODES" ]
 then
-	RPNODES="dm1 dm2 dm3 dm4"
+	RPNODES="pi1 pi2 pi3 pi4"
 fi
 if [ -z "$RPUSER" ]
 then
