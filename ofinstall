@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# we're going to do a helm chart install. Check if helm is here, if not, install
+which helm > /dev/null
+OUT=$?
+
+if [ $OUT -eq 1 ];then
+	curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
+	kubectl -n kube-system create sa tiller
+	kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
+
+	# arm64/aarch64 is not supported on official builds, we'll use a multi-arch rebuild
+	helm init --tiller-image=jessestuart/tiller --skip-refresh --upgrade --service-account tiller
+fi
+
+
+# we'll need the OpenFaaS CLI. If it's not here, install it
+which faas-cli > /dev/null
+OUT=$?
+if [ $OUT -eq 1 ];then
+	curl -sL https://cli.openfaas.com | sudo sh
+fi
+
+echo "ready to install OpenFaaS"
+kubectl apply -f https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml
+helm repo add openfaas https://openfaas.github.io/faas-netes/
+
+# if we want load-balancer and ingress make sure these options are uncommented
+OPTIONS=$OPTIONS" --set serviceType=LoadBalancer"
+OPTIONS=$OPTIONS" --set ingress.enabled=true"
+
+# generate a random password
+# drop into a creds file so we don't lose track of it.
+PASSWORD=$(head -c 12 /dev/urandom | shasum | cut -d' ' -f1)
+echo admin/$PASSWORD > ofcreds.txt
+kubectl -n openfaas create secret generic basic-auth --from-literal=basic-auth-user=admin --from-literal=basic-auth-password="$PASSWORD"
+helm repo update
+helm upgrade openfaas --install openfaas/openfaas --namespace openfaas --set basic_auth=true --set functionNamespace=openfaas-fn $OPTIONS
