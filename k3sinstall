@@ -1,0 +1,57 @@
+#!/bin/bash
+
+which k3sup > /dev/null
+OUT=$?
+
+if [ $OUT -eq 1 ];then
+	cat <<EOF
+ERROR: k3sup is not installed. Try this command sequence:
+
+curl -sLS https://get.k3sup.dev | sh
+sudo install k3sup /usr/local/bin/
+
+k3sup --help
+EOF
+	exit 1
+fi
+
+which kubectl > /dev/null
+OUT=$?
+
+if [ $OUT -eq 1 ];then
+	cat <<EOF
+ERROR: kubctl is not installed locally. Try this command sequence:
+
+sudo apt-get update && sudo apt-get install -y apt-transport-https
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+sudo apt-get update
+sudo apt-get install -y kubectl
+EOF
+	exit 1
+fi
+
+echo "all good. Proceeding..."
+
+# get node names, user account
+. ~/.rpicrc
+
+# node number - first node in list will be the cluster master node
+nnum=0
+
+for node in $RPNODES
+do
+	nodeip=`grep $node /etc/hosts | cut -f1`
+	nnum+=1
+	if [ $nnum -eq 1 ];then
+		masterip=$nodeip
+		echo "installing k3s on $node as cluster master node..."
+		k3sup install --ip $masterip --user $RPUSER
+	else
+		echo "installing k3s on $node as a cluster worker node..."
+		k3sup join --ip $nodeip --server-ip $masterip --user $RPUSER
+	fi
+done
+	sleep 5
+	printf "Here's your new %s node cluster:\n\n" $nnum
+	kubectl get node

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# get node names, user account
+. ~/.rpicrc
+
+nnum=0
+
+for node in $RPNODES
+do
+	nnum+=1
+	if [ $nnum -eq 1 ];then
+		masternode=$node
+	else
+		echo "uninstalling k3s on $node cluster worker..."
+		ssh -l $RPUSER $node "sudo k3s-killall.sh && sudo k3s-agent-uninstall.sh"
+
+	fi
+done
+
+# now uninstall master node
+echo "uninstalling k3s on $masternode master node..."
+ssh -l $RPUSER $masternode "sudo k3s-killall.sh && sudo k3s-uninstall.sh"
