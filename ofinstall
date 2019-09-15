@@ -6,11 +6,6 @@ OUT=$?
 
 if [ $OUT -eq 1 ];then
 	curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
-	kubectl -n kube-system create sa tiller
-	kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
-
-	# arm64/aarch64 is not supported on official builds, we'll use a multi-arch rebuild
-	helm init --tiller-image=jessestuart/tiller --skip-refresh --upgrade --service-account tiller
 fi
 
 
@@ -21,13 +16,21 @@ if [ $OUT -eq 1 ];then
 	curl -sL https://cli.openfaas.com | sudo sh
 fi
 
+# arm64/aarch64 is not supported on official builds, we'll use a multi-arch rebuild
+kubectl -n kube-system create sa tiller
+kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
+helm init --tiller-image=jessestuart/tiller --skip-refresh --upgrade --service-account tiller
+
+echo "pausing 90 secs to allow a tiller pod to start before we proceed..."
+sleep 90
 echo "ready to install OpenFaaS"
 kubectl apply -f https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml
 helm repo add openfaas https://openfaas.github.io/faas-netes/
 
 # if we want load-balancer and ingress make sure these options are uncommented
-OPTIONS=$OPTIONS" --set serviceType=LoadBalancer"
-OPTIONS=$OPTIONS" --set ingress.enabled=true"
+OPTIONS=""
+#OPTIONS=$OPTIONS" --set serviceType=LoadBalancer"
+#OPTIONS=$OPTIONS" --set ingress.enabled=true"
 
 # generate a random password
 # drop into a creds file so we don't lose track of it.
@@ -36,3 +39,14 @@ echo admin/$PASSWORD > ofcreds.txt
 kubectl -n openfaas create secret generic basic-auth --from-literal=basic-auth-user=admin --from-literal=basic-auth-password="$PASSWORD"
 helm repo update
 helm upgrade openfaas --install openfaas/openfaas --namespace openfaas --set basic_auth=true --set functionNamespace=openfaas-fn $OPTIONS
+
+# install nginx for ingress
+#helm install stable/nginx-ingress --name nginxingress --set rbac.create=true
+
+# ...and install a cert-manager
+#kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.10/deploy/manifests/00-crds.yaml
+#kubectl create namespace cert-manager
+#kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
+#helm repo add jetstack https://charts.jetstack.io
+#helm repo update
+#helm install --name cert-manager --namespace cert-manager --version v0.10.0 jetstack/cert-manager
