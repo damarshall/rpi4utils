@@ -37,12 +37,12 @@ echo "all good. Proceeding..."
 . ~/.rpicrc
 
 # node number - first node in list will be the cluster master node
-nnum=0
+let nnum=0
 
 for node in $RPNODES
 do
 	nodeip=`grep $node /etc/hosts | cut -f1`
-	nnum+=1
+	let nnum++
 	if [ $nnum -eq 1 ];then
 		masterip=$nodeip
 		echo "installing k3s on $node as cluster master node..."
@@ -53,5 +53,5 @@ do
 	fi
 done
 	sleep 5
-	printf "Here's your new %s node cluster:\n\n" $nnum
+	printf "Here's your new %d node cluster:\n\n" $nnum
 	kubectl get node

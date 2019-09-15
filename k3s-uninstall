@@ -3,11 +3,11 @@
 # get node names, user account
 . ~/.rpicrc
 
-nnum=0
+let nnum=0
 
 for node in $RPNODES
 do
-	nnum+=1
+	let nnum++
 	if [ $nnum -eq 1 ];then
 		masternode=$node
 	else
