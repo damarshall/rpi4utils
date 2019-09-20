@@ -84,6 +84,4 @@ net.ifnames=0 dwc_otg.lpm_enable=0 console=ttyAMA0,115200 console=tty1 root=/dev
 
 The images below are ready to flash onto a microSD card and optionally a USB3 drive:
 
-- [Ubuntu-18.04.3-sdcard-only-cloud-init-ready](https://rpi4utils.s3.amazonaws.com/images/aci-ubuntu-18.04.03-armhf-raspi4-20190809.img.xz)
-- [Ubuntu-18.04.3-sdcard-with-USB3-root-cloud-init-ready](https://rpi4utils.s3.amazonaws.com/images/aci-ubuntu-18.04.03-armhf-raspi4-usb3root-20190811.img.xz)
-
+- [Ubuntu-18.04.3-rpi4+arm64-sdcard-with-USB3-root-cloud-init-ready](https://rpi4utils.s3.amazonaws.com/images/aci-ubuntu-18.04.3-arm64%2Braspi4-usb3root-20190907b.img.xz)
