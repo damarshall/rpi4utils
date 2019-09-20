@@ -1,28 +1,14 @@
 #!/bin/bash
 
-# we're going to do a helm chart install. Check if helm is here, if not, install
-which helm > /dev/null
-OUT=$?
-
-if [ $OUT -eq 1 ];then
-	curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
-fi
-
 
 # we'll need the OpenFaaS CLI. If it's not here, install it
 which faas-cli > /dev/null
 OUT=$?
 if [ $OUT -eq 1 ];then
+	echo "installing openfaas-cli..."
 	curl -sL https://cli.openfaas.com | sudo sh
 fi
 
-# arm64/aarch64 is not supported on official builds, we'll use a multi-arch rebuild
-kubectl -n kube-system create sa tiller
-kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
-helm init --tiller-image=jessestuart/tiller --skip-refresh --upgrade --service-account tiller
-
-echo "pausing 90 secs to allow a tiller pod to start before we proceed..."
-sleep 90
 echo "ready to install OpenFaaS"
 kubectl apply -f https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml
 helm repo add openfaas https://openfaas.github.io/faas-netes/
