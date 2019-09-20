@@ -1,5 +1,5 @@
 #cloud-config
-password: Welcome2ACI!
+password: ubuntu
 chpasswd: { expire: False }
 ssh_pwauth: True
 
@@ -21,10 +21,12 @@ runcmd:
  - [ apt-mark, hold, linux-firmware-raspi2, linux-headers-raspi2, linux-image-raspi2, linux-raspi2 ]
 # install essential pi tools so you can run commands like 'vcgencmd measure_temp'
  - [ add-apt-repository, -y, "ppa:ubuntu-raspi2/ppa" ]
- - [ apt-get, install, -y, libraspberrypi-bin ]
+ - [ apt-get, install, -y, libraspberrypi-bin, gpm ]
  # Note: Don't write files to /tmp from cloud-init use /run/somedir instead.
  # Early boot environments can race systemd-tmpfiles-clean LP: #1707222.
  #
- # make directory listings legible and readable
+ # make directory listings legible and readable and use solarized color scheme on linux console
  - [ git, clone, "https://github.com/huyz/dircolors-solarized", /home/ubuntu/dircolors-solarized ]
  - [ ln, -s, /home/ubuntu/dircolors-solarized/dircolors.ansi-universal, /home/ubuntu/.dircolors ]
+ - [ git, clone, "https://github.com/joepvd/tty-solarized.git", /home/ubuntu/tty-solarized ] 
+ - [ echo, ". $HOME/tty-solarized/tty-solarized-dark.sh >> /home/ubuntu/.profile" ]
