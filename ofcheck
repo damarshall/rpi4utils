@@ -1,5 +1,10 @@
 #!/bin/bash
 
+echo -e "\nOpenFaaS environment:"
 kubectl --namespace=openfaas get deployments -l "release=openfaas, app=openfaas"
 kubectl get pods -n openfaas
 kubectl top pods -n openfaas
+
+echo -e "\nDeployed functions:"
+kubectl --namespace=openfaas-fn get deployments
+kubectl top pods -n openfaas-fn
