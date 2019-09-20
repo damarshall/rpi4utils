@@ -3,7 +3,27 @@
 #install kubectl
 
 # metrics-server (slightly tuned config for arm64)
+echo "deploying metrics-server..."
 kubectl create -f conf/metrics-server/
 
 # standard k8s dashboard
 #kubectl apply -f conf/dashboard/arm64deployment.yaml
+
+# we're going to do a helm chart install. Check if helm is here, if not, install
+which helm > /dev/null
+OUT=$?
+
+if [ $OUT -eq 1 ];then
+	curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
+fi
+
+# arm64/aarch64 is not supported on official builds, we'll use a multi-arch rebuild
+echo "deploying tiller..."
+kubectl -n kube-system create sa tiller
+kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
+helm init --tiller-image=jessestuart/tiller --skip-refresh --upgrade --service-account tiller
+
+echo "use 'kubectl get pod -n kube-system' to check tiller readiness"
+kubectl get pod -n kube-system
+
+echo -e "\nEnsure tiller is deployed and ready, then try './ofinstall' next"
