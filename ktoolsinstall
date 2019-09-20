@@ -1,0 +1,9 @@
+#!/bin/bash
+
+#install kubectl
+
+# metrics-server (slightly tuned config for arm64)
+kubectl create -f conf/metrics-server/
+
+# standard k8s dashboard
+#kubectl apply -f conf/dashboard/arm64deployment.yaml
