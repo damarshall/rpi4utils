@@ -17,7 +17,7 @@ rm $outf 2> /dev/null
 
 # run $cmd in parallel across $RPNODES
 pssh() {
-	echo "executing '$cmd' across cluster..."
+	#echo "executing '$cmd' across cluster..."
 	let i=0
 	for node in $RPNODES
 	do
@@ -30,7 +30,7 @@ pssh() {
 
 # run the script in $2 in parallel acros $RPNODES
 rexec() {
-	echo "executing '$assu $2' across cluster..."
+	#echo "executing '$assu $2' across cluster..."
 	let i=0
 	for node in $RPNODES
 	do
@@ -56,6 +56,7 @@ rhelp() {
 	printf "Usage: rpic <command> (options)\n"
     printf "\nexec: 'rpic exec scriptfile' runs local scriptfile per node\n"
     printf "\tload: shows load average per node\n"
+    printf "\tmac: shows MAC address for eth0 on each node\n"
     printf "\trun: 'rpic run command line' runs 'command line' via ssh per node\n"
     printf "\tshutdown: shuts down all nodes\n"
     printf "\nsuexec: 'rpic suexec scriptfile' runs local scriptfile as su per node\n"
@@ -74,6 +75,10 @@ case "$1" in
 		cmd="cat /proc/loadavg"
 		pssh
     	;;
+	mac)
+		cmd="ifconfig eth0 | grep ether | cut -d' ' -f10"
+		pssh
+		;;
 	run)
 		shift
 		cmd=$@
