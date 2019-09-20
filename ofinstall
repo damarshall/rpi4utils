@@ -31,6 +31,9 @@ helm repo add openfaas https://openfaas.github.io/faas-netes/
 OPTIONS=""
 #OPTIONS=$OPTIONS" --set serviceType=LoadBalancer"
 #OPTIONS=$OPTIONS" --set ingress.enabled=true"
+OPTIONS=$OPTIONS" --set faasnetes.httpProbe=true"
+OPTIONS=$OPTIONS" --set queueWorker.replicas=2"
+OPTIONS=$OPTIONS" --set nats.enableMontitoring=true"
 
 # generate a random password
 # drop into a creds file so we don't lose track of it.
@@ -38,10 +41,7 @@ PASSWORD=$(head -c 12 /dev/urandom | shasum | cut -d' ' -f1)
 echo admin/$PASSWORD > ofcreds.txt
 kubectl -n openfaas create secret generic basic-auth --from-literal=basic-auth-user=admin --from-literal=basic-auth-password="$PASSWORD"
 helm repo update
-helm upgrade openfaas --install openfaas/openfaas --namespace openfaas --set basic_auth=true --set functionNamespace=openfaas-fn $OPTIONS
-
-# install nginx for ingress
-#helm install stable/nginx-ingress --name nginxingress --set rbac.create=true
+helm upgrade -f conf/openfaas/values.yaml -f conf/openfaas/values-arm64.yaml openfaas --install openfaas/openfaas --namespace openfaas --set basic_auth=true --set functionNamespace=openfaas-fn $OPTIONS
 
 # ...and install a cert-manager
 #kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.10/deploy/manifests/00-crds.yaml

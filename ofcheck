@@ -1,3 +1,5 @@
 #!/bin/bash
 
 kubectl --namespace=openfaas get deployments -l "release=openfaas, app=openfaas"
+kubectl get pods -n openfaas
+kubectl top pods -n openfaas
