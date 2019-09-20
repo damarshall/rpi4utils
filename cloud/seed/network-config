@@ -5,8 +5,8 @@ ethernets:
     dhcp4: no
     addresses:
       - 192.168.100.101/24
-      - 192.168.25.71/24
-    gateway4: 192.168.25.1
+      - 192.168.1.71/24
+    gateway4: 192.168.1.1
     nameservers:
-      search: [dm.local]
+      search: [pi.local]
       addresses: [1.1.1.1,2.2.2.2]
