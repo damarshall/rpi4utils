@@ -4,7 +4,6 @@ date: 2019-09-20T19:27:37+10:00
 weight: 5
 summary: Here is a hardware parts list to build a Raspberry Pi 4 Cluster.
 ---
-## Bill of Materials
 Here is a complete bill of materials for an 8-node cluster:
 
 
@@ -20,6 +19,17 @@ Here is a complete bill of materials for an 8-node cluster:
 |     2    | [Cat 6 Ethernet Cable 5 Pack](https://www.amazon.com/gp/product/B01JO3FM7Y/ref)                 |   $8 |      $16 |
 |     1    | [YuanLey 8 Port Gigabit PoE Switch](https://www.amazon.com/gp/product/B0795MFCHZ/)              |  $88 |      $88 |
 |     1    | [MicroSD card organizer](https://www.amazon.com/gp/product/B006J73IZM/)                         |   $7 |       $7 |
+|     1    | [Sandisk 16GB Cruzer Fit USB Flash Drive](https://www.amazon.com/dp/B07MDXBT87)                 |   $6 |       $6 |
 
 
-The total cost (before shipping) is $1,211.
+The total cost (before shipping) is $1,217.
+
+The USB flash drive is for cloud-init, so you can configure your cluster easily.
+
+The MicroSD card organizer is a nice touch, allows you to organize and keep spares handy. I've recommended doubling up on
+the MicroSD cards (the Sandisk 2x32GB cards are 2-packs) as a spare for each node will be useful during upgrades.
+
+## PoE Switch
+
+The YuanLey gigabit PoE switch is a cheap and cheerful unmanaged switch providing 120W total PoE across 8 ports. 
+It also has 2 gigabit uplink ports and a backplane that will support 22gbps throughput. 
