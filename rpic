@@ -8,66 +8,48 @@
 # alternatively you can override and pass in a subset of node names on the command line:
 #  	RPNODES="pi3 pi4 pi5" rpic <command>
 #
+# commands are executed in parallel across all nodes at once
+#
 . ~/.rpicrc
 
-temp() {
-    for node in $RPNODES
-    do
-    	oval=`ssh -l $RPUSER $node vcgencmd measure_temp`
-       	printf "%s:" $node
-       	printf " %s" $oval
-       	printf "\n"
-    done
-}
+outf=/tmp/rpic.out
+rm $outf 2> /dev/null
 
-load() {
-    for node in $RPNODES
-    do
-       	oval=`ssh -l $RPUSER $node cat /proc/loadavg`
-       	printf "%s:" $node
-       	printf " %s" $oval
-       	printf "\n"
-    done
-}
-
-shutdown() {
-    for node in $RPNODES
-    do
-       	printf "%s: " $node
-       	oval=`ssh -l $RPUSER $node sudo shutdown -h +1`
-       	printf " %s" $oval
-       	printf "\n"
-    done
-}
-
-run() {
+# run $cmd in parallel across $RPNODES
+pssh() {
+	echo "executing '$cmd' across cluster..."
+	let i=0
 	for node in $RPNODES
 	do
-		printf "%s:" $node
-		oval=`ssh -l $RPUSER $node $@`
-		printf " %s" $oval
-		printf "\n"
+		echo "$node:" `ssh -l $RPUSER $node $cmd 2>&1` >> $outf &
+		pids[i]=$!
+		let i++
 	done
+	catout
 }
 
+# run the script in $2 in parallel acros $RPNODES
 rexec() {
+	echo "executing '$assu $2' across cluster..."
+	let i=0
 	for node in $RPNODES
 	do
-		printf "\n%s:" $node
-		oval=`ssh -l $RPUSER $node /bin/bash < $2`
-		printf " %s" $oval
-		printf "\n"
+		echo "$node:" `ssh -l $RPUSER $node $assu /bin/bash 2>&1 < $2` &>> $outf &
+		pids[i]=$!
+		let i++
 	done
+	catout
 }
 
-suexec() {
-	for node in $RPNODES
+# wait for background ssh cmd to complete on each node
+# and write output to $outf
+# Once all jobs finish, write sorted output from $outf to stdout
+catout() {
+	for pid in ${pids[*]}
 	do
-		printf "\n%s:" $node
-		oval=`ssh -l $RPUSER $node sudo /bin/bash < $2`
-		printf " %s" $oval
-		printf "\n"
+		wait $pid
 	done
+	cat $outf | sort
 }
 
 rhelp() {
@@ -82,26 +64,32 @@ rhelp() {
 
 case "$1" in
   	exec)
+		assu=""
 		rexec $@
 		;;
 	help)
     	rhelp
     	;;
   	load)
-    	load
+		cmd="cat /proc/loadavg"
+		pssh
     	;;
 	run)
 		shift
-		run $@
+		cmd=$@
+		pssh
 		;;
   	shutdown)
-    	shutdown
+		cmd="sudo shutdown -h now"
+    	pssh
     	;;
 	suexec)
-		suexec $@
+		assu="sudo"
+		rexec $@
 		;;
   	temp)
-    	temp
+		cmd="vcgencmd measure_temp"
+		pssh
     	;;
   	*)
     	rhelp
