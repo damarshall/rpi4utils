@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# just now latest K3S is broken (v0.9.0)
+INSTALL_K3S_VERSION="v0.8.1"
+
+
 which k3sup > /dev/null
 OUT=$?
 
@@ -40,7 +44,8 @@ do
 	if [ $nnum -eq 1 ];then
 		masterip=$nodeip
 		echo "installing k3s on $node as cluster master node..."
-		k3sup install --ip $masterip --user $RPUSER
+		k3sup install --ip $masterip --user $RPUSER --k3s-extra-args '--no-deploy traefik'
+		#k3sup install --ip $masterip --user $RPUSER
 	else
 		echo "installing k3s on $node as a cluster worker node..."
 		k3sup join --ip $nodeip --server-ip $masterip --user $RPUSER
