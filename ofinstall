@@ -16,7 +16,7 @@ helm repo add openfaas https://openfaas.github.io/faas-netes/
 # if we want load-balancer and ingress make sure these options are uncommented
 OPTIONS=""
 #OPTIONS=$OPTIONS" --set serviceType=LoadBalancer"
-#OPTIONS=$OPTIONS" --set ingress.enabled=true"
+OPTIONS=$OPTIONS" --set ingress.enabled=true"
 OPTIONS=$OPTIONS" --set faasnetes.httpProbe=true"
 OPTIONS=$OPTIONS" --set queueWorker.replicas=2"
 OPTIONS=$OPTIONS" --set nats.enableMontitoring=true"
