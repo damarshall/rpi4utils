@@ -7,7 +7,15 @@ echo "deploying metrics-server..."
 kubectl create -f conf/metrics-server/
 
 # standard k8s dashboard
-#kubectl apply -f conf/dashboard/arm64deployment.yaml
+echo "deploying kubernetes dashboard..."
+kubectl apply -f conf/dashboard/arm64deployment.yaml
+# TODO: need to create a user and bearer token
+
+# ingress-nginx
+# we'll use this rather than Traefik as it's mainstream and easier to config
+echo "deploying nginx-ingress-controller..."
+kubectl apply -f conf/ingress-nginx/mandatory.yaml
+kubectl apply -f conf/ingress-nginx/service-nodeport.yaml
 
 # we're going to do a helm chart install. Check if helm is here, if not, install
 which helm > /dev/null
