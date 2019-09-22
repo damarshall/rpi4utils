@@ -112,7 +112,7 @@ sudo touch /mnt/etc/modules-load.d/cups-filters.conf
 sudo chroot /mnt /bin/bash
 
 # % Create symlink to fix Bluetooth firmware bug
-sudo ln -s /mnt/lib/firmware /mnt/etc/firmware
+ln -s /lib/firmware /etc/firmware
 
 # % Add updated mesa repository for video driver support
 add-apt-repository ppa:ubuntu-x-swat/updates -y
