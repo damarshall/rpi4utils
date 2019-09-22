@@ -7,15 +7,20 @@ echo "deploying metrics-server..."
 kubectl create -f conf/metrics-server/
 
 # standard k8s dashboard
-echo "deploying kubernetes dashboard..."
+echo -e "\n\ndeploying kubernetes dashboard..."
 kubectl apply -f conf/dashboard/arm64deployment.yaml
 # TODO: need to create a user and bearer token
 
 # ingress-nginx
 # we'll use this rather than Traefik as it's mainstream and easier to config
-echo "deploying nginx-ingress-controller..."
+echo -e "\n\ndeploying nginx-ingress-controller..."
 kubectl apply -f conf/ingress-nginx/mandatory.yaml
 kubectl apply -f conf/ingress-nginx/service-nodeport.yaml
+
+# we're going to use metallb as a load-balancer with a simple layer-2 config
+echo -e "\n\ndeploying metallb load-balancer in layer 2 mode"
+kubectl apply -f conf/metallb/metallb.yaml
+kubectl apply -f conf/metallb/config.yaml
 
 # we're going to do a helm chart install. Check if helm is here, if not, install
 which helm > /dev/null
@@ -26,12 +31,12 @@ if [ $OUT -eq 1 ];then
 fi
 
 # arm64/aarch64 is not supported on official builds, we'll use a multi-arch rebuild
-echo "deploying tiller..."
+echo -e "\n\ndeploying tiller..."
 kubectl -n kube-system create sa tiller
 kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
 helm init --tiller-image=jessestuart/tiller --skip-refresh --upgrade --service-account tiller
 
-echo "use 'kubectl get pod -n kube-system' to check tiller readiness"
-kubectl get pod -n kube-system
+echo -e "\nuse 'kubectl get pod -n kube-system' to check tiller readiness"
+kubectl get pod -n kube-system -o wide
 
 echo -e "\nEnsure tiller is deployed and ready, then try './ofinstall' next"
