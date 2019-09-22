@@ -52,7 +52,11 @@ do
 	fi
 done
 sleep 5
+
+# fixup master server IP in kubeconfig
+sed -i "s/127.0.0.1/$masterip/g" kubeconfig
+
 printf "Here's your new %d node cluster:\n\n" $nnum
-kubectl get node
+kubectl get node -o wide
 
 echo -e "\nTry running './ktoolsinstall' next"
