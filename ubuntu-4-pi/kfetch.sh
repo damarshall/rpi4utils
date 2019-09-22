@@ -16,6 +16,7 @@ git clone https://github.com/RPi-Distro/firmware-nonfree firmware-nonfree
 cd firmware-nonfree
 git pull
 
+cd $BASEDIR
 # get current firmware so we can include start*.elf in the image
 wget https://github.com/raspberrypi/firmware/archive/master.zip
 
@@ -25,12 +26,8 @@ unzip master.zip
 # get pre-installed Ubuntu 18.04.3 for rpi3 arm64
 wget http://cdimage.ubuntu.com/ubuntu/releases/bionic/release/ubuntu-18.04.3-preinstalled-server-arm64+raspi3.img.xz
 
-# Fetch Sakaki's config improving script for 64 bit
-wget https://raw.githubusercontent.com/sakaki-/bcmrpi3-kernel-bis/master/conform_config.sh
-
 # Fetch kernel source
 
-cd $BASEDIR
 git clone https://github.com/raspberrypi/linux.git rpi-linux
 cd rpi-linux
 git checkout origin/rpi-4.19.y # change the branch name for newer versions

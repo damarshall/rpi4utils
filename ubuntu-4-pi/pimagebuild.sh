@@ -7,8 +7,15 @@ cd $BASEDIR
 
 export KERNEL_VERSION=`cat ./rpi-linux/kernel-build/include/generated/utsrelease.h | sed -e 's/.*"\(.*\)".*/\1/'` 
 
-# MOUNT IMAGE
+which kpartx > /dev/null
+OUT=$?
 
+if [ $OUT -eq 1 ];then
+	echo "warning: kpartx is not installed. Installing..."
+	sudo apt install -y kpartx
+fi
+
+# MOUNT IMAGE
 echo "Kernel version: $KERNEL_VERSION"
 echo "preparing RPi 4 image for kernel and firmware installation..."
 xzcat ubuntu-18.04.3-preinstalled-server-arm64+raspi3.img.xz > ubuntu-18.04.3-preinstalled-server-arm64+raspi4.img
@@ -21,6 +28,8 @@ sudo mount /dev/mapper/"${MountXZ}"p2 /mnt
 sudo rm -rf /mnt/boot/firmware/*
 sudo mount /dev/mapper/"${MountXZ}"p1 /mnt/boot/firmware
 
+sudo fstrim -av
+
 sudo rm -rf /mnt/boot/firmware/*
 sudo rm -rf /mnt/usr/src/*
 sudo rm -rf /mnt/lib/modules/*
@@ -30,6 +39,7 @@ sudo rm -rf /mnt/boot/config*
 sudo rm -rf /mnt/boot/vmlinuz*
 sudo rm -rf /mnt/boot/System.map*
 
+sudo fstrim -av
 sudo e4defrag /mnt/*
 
 sudo cp -rvf bootfiles/* /mnt/boot/firmware
@@ -53,16 +63,20 @@ sudo rm /mnt/var/lib/initramfs-tools/*
 sha1sum=$(sha1sum  /mnt/boot/initrd.img-${KERNEL_VERSION})
 echo "$sha1sum  /boot/vmlinuz-${KERNEL_VERSION}" | sudo -A tee -a /mnt/var/lib/initramfs-tools/"${KERNEL_VERSION}" >/dev/null;
 
+# copy the new kernel modules to the ubuntu image
 sudo mkdir /mnt/lib/modules/${KERNEL_VERSION}
-sudo cp -rvf rpi-linux/kernel-build/kernel-install/* /mnt
+sudo cp -ravf rpi-linux/kernel-build/kernel-install/* /mnt
 
+# copy the latest firmware to the ubuntu image
 sudo rm -rf firmware-nonfree/.git
 sudo cp -ravf firmware-nonfree/* /mnt/lib/firmware
 
+# copy system.map, kernel, .config to ubuntu image
 sudo cp -vf rpi-linux/kernel-build/System.map /mnt/boot/firmware
 sudo cp -vf rpi-linux/kernel-build/Module.symvers /mnt/boot/firmware
 sudo cp -vf rpi-linux/kernel-build/.config /mnt/boot/firmware/config
 
+sudo fstrim -av
 sudo e4defrag /mnt/*
 
 # QUIRKS
@@ -77,8 +91,6 @@ sudo rm -f /mnt/etc/kernel/postinst.d/zz-flash-kernel
 sudo rm -f /mnt/etc/kernel/postrm.d/zz-flash-kernel
 sudo rm -f /mnt/etc/initramfs/post-update.d/flash-kernel
 
-# % Create symlink to fix Bluetooth firmware bug
-sudo ln -s /mnt/lib/firmware /mnt/etc/firmware
 
 # % Disable ib_iser iSCSI cloud module to prevent an error during systemd-modules-load at boot
 #sudo sed -i "s/ib_iser/#ib_iser/g" /mnt/lib/modules-load.d/open-iscsi.conf
@@ -99,6 +111,9 @@ sudo touch /mnt/etc/modules-load.d/cups-filters.conf
 
 sudo chroot /mnt /bin/bash
 
+# % Create symlink to fix Bluetooth firmware bug
+sudo ln -s /mnt/lib/firmware /mnt/etc/firmware
+
 # % Add updated mesa repository for video driver support
 add-apt-repository ppa:ubuntu-x-swat/updates -y
 
@@ -108,6 +123,8 @@ depmod -a "$Version"
 
 # % Update initramfs
 apt-mark hold flash-kernel linux-raspi2 linux-image-raspi2 linux-headers-raspi2 linux-firmware-raspi2
+apt remove linux-firmware-raspi2 -y --allow-change-held-packages
+apt update && apt dist-upgrade -y
 update-initramfs -u
 
 # % INSTALL HAVAGED - prevents low entropy from making the Pi take a long time to start up.
@@ -117,6 +134,9 @@ update-initramfs -u
 
 # % Remove ureadahead, does not support arm and makes our bootup unclean when checking systemd status
 apt remove ureadahead libnih1 -y
+
+# force fsck on next boot
+touch /forcefsck
 
 # % Finished, exit
 exit
