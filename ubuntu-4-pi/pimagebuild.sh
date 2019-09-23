@@ -109,7 +109,7 @@ grep "ARRAY devices" /mnt/etc/mdadm/mdadm.conf >/dev/null || echo "ARRAY devices
 #cat /run/systemd/resolve/stub-resolv.conf | sudo -A tee /mnt/run/systemd/resolve/stub-resolv.conf >/dev/null;
 sudo touch /mnt/etc/modules-load.d/cups-filters.conf
 
-sudo chroot /mnt /bin/bash
+sudo chroot /mnt /bin/bash <<EOF
 
 # % Create symlink to fix Bluetooth firmware bug
 ln -s /lib/firmware /etc/firmware
@@ -139,7 +139,7 @@ apt remove ureadahead libnih1 -y
 touch /forcefsck
 
 # % Finished, exit
-exit
+EOF
 
 # UNMOUNT AND SAVE CHANGES TO IMAGE
 
