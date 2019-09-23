@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# just now latest K3S is broken (v0.9.0)
-INSTALL_K3S_VERSION="v0.8.1"
-
-
 which k3sup > /dev/null
 OUT=$?
 
