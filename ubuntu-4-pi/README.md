@@ -28,3 +28,9 @@ As an alternative to step 4, if bootstrapping cross-architecture, _imagebuild.sh
 The directory __bootfiles__ contains Pi4 firmware, a _config.txt_ ([Pi4 firmware configuration](https://www.raspberrypi.org/documentation/configuration/config-txt/README.md)), a _cmdline.txt_ ([linux kernel configuration](https://www.kernel.org/doc/html/v4.19/admin-guide/kernel-parameters.html)) for installation onto our image.
 
 The script _clean.sh_ cleans (removes) built assets and downloaded software.
+
+## Images
+
+The images below are ready to flash onto a microSD card and optionally a USB3 drive:
+
+- [Ubuntu-18.04.3-rpi4+arm64-sdcard-with-USB3-root-cloud-init-ready](https://rpi4utils.s3.amazonaws.com/images/ubuntu-18.04.3-preinstalled-server-arm64%2Braspi4-usb3root-20190922.img.xz)

@@ -3,82 +3,38 @@ title: 'Preparing an Image'
 date: 2019-02-11T19:27:37+10:00
 draft: false
 weight: 3
-summary: Learn how to prepare a bootable, maintainable Ubuntu 18.04.3 (armhf) image for a Raspberry Pi 4.
+summary: Learn how to prepare a bootable, maintainable Ubuntu 18.04.3 (arm64) image for a Raspberry Pi 4.
 ---
-# Preparing a Bootable Ubuntu 18.04.3 Image
-N.B. the official Ubuntu supplied image is not RPi 4 compatible. We will take a copy of the current working firmware, take a copy of the Ubuntu pi3+ pre-installed server image and merge the two together.
+## Build for Unofficial RPi 4 ARM64 Ubuntu 18.04.3 server
 
-We will be working on a 32-bit image (arch: armhf) as there are memory limitations on the 64-bit firmware code causing it to fail on boards with more than 1GB RAM configured.
+This builds on the work of James Chambers and others begun in [this blog post](https://jamesachambers.com/raspberry-pi-4-ubuntu-server-desktop-18-04-3-image-unofficial/)
+and codified at [https://github.com/TheRemote/Ubuntu-Server-raspi4-unofficial](https://github.com/TheRemote/Ubuntu-Server-raspi4-unofficial).
 
-Pi 4 firmware only supports booting from the microSD card at the time of writing (10-Aug-2019), so we will prepare a bootable image for a microSD card. With a single line change it can also be used to mount a USB3 drive as the root volume.
+Mr. Chambers work, in turn, builds on [Sakaki's automated 64-bit bcm2711 kernel config and tweaks](https://github.com/sakaki-/bcm2711-kernel-bis).
 
-Retrieve current Pi4 compatible firmware as follows:
+The work consists of compiling and applying arm64 kernel, modules and RPi 4 firmware to a an official Ubuntu 18.04.3 
+preinstalled server image for RPi3+, tweaking slightly, then repackaging as a Pi4-compatible pre-installed image.
 
-```bash
-wget https://codeload.github.com/raspberrypi/firmware/zip/master
-```
+This is a refactoring of that work, splitting one monolithic script into four distinct phases.
+The original work was designed to only operate on a Raspberry Pi 3+ or 4, however with this refactoring
+the first three phases can be run on any linux machine (tested on Ubuntu amd64) and only the final
+phase with the `chroot` work must be run on a Pi.
 
-and the pre-installed Ubuntu rpi3 image:
+There is an alternate fourth phase which will allow you to bootstrap a sub-optimal pi4 build so 
+you can self-host and run the better 4th phase to produce a stable image.
 
-```bash
-wget http://cdimage.ubuntu.com/ubuntu/releases/bionic/release/ubuntu-18.04.3-preinstalled-server-armhf+raspi3.img.xz
-```
+There are a series of scripts in this directory, run them in the following sequence:
 
-To prepare a bootable Pi 4 image, proceed as follows:
+1. _toolchain.sh_ this will build an arm64 toolchain in the directory __toolchains__. This allows cross-compilation of an arm64 target on say X86 hardware
+2. _kfetch.sh_ fetches firmware, linux kernel source (RPi version) and `rpi-tools`. This script also sets kernel compilation options above and beyond default __bcm2711_defconfig__, and pulls the preinstalled rpi3 arm64 ubuntu image from Canonical
+3. _kbuild.sh_ compile the kernel and modules and prepare for installation
+4. _pimagebuild.sh_ makes a copy of the rpi3 arm64 image from Canonical, mounts it and installs the kernel built by _kbuild.sh_ and firmware downloaded by _kfetch.sh_, `chroot`s into the image and updates __initramfs__ amongst other minor tweaks. This script must be run from a Pi4
 
-- Unzip the firmware zip file
-- copy the image to another name:
+As an alternative to step 4, if bootstrapping cross-architecture, _imagebuild.sh_ makes a copy of the rpi3 arm64 image from Canonical, mounts it and installs the kernel built by _kbuild.sh_ and firmware downloaded by _kfetch.sh_ but skips the final `chroot` work. This will be sufficient to bootstrap a Pi4 image where you can run _pimagebuild.sh_ to produce the desired stable image.
 
-```bash
-unzip firmware-master.zip
-cp ubuntu-18.04.3-preinstalled-server-armhf+raspi3.img.xz ubuntupi4.img.xz
-```
+The directory __bootfiles__ contains Pi4 firmware, a _config.txt_ ([Pi4 firmware configuration](https://www.raspberrypi.org/documentation/configuration/config-txt/README.md)), a _cmdline.txt_ ([linux kernel configuration](https://www.kernel.org/doc/html/v4.19/admin-guide/kernel-parameters.html)) for installation onto our image.
 
-- uncompress the image we'll work on:
-
-```bash
-unxz ubuntupi4.img.xz
-```
-- create loop devices for partitions in the image:
-
-```bash
-sudo kpartx -av ubuntupi4.img
-```
-- pay attention to the mapping devices created and mount the one for the first partition in the image (the first partition is the boot partition containing the firmware). N.B. the device has the prefix `/dev/mapper`:
-
-```bash
-sudo mount -o loop /dev/mapper/loop26p1 /mnt
-```
-
-- delete the contents of the firmware directory except for `cmdline.txt` and `config.txt` which should be preserved, and the contents of the overlay directory. Copy contents from `firmware-master/boot` to replace those in `/mnt` (don't forget to copy the contents of the overlay directory as well)
-- Unmount the loopback drive, remove the device mappings and compress the image:
-
-```bash
-sync
-sudo umount /mnt
-sudo kpartx -d ubuntupi4.img
-xz -vz ubuntupi4.img
-```
-- You know have a Pi 4 image suitable for flashing onto a microSD card. An excellent tool for doing this is [Balena Etcher](https://www.balena.io/etcher/).
-
-You now have a bootable Ubuntu 18.04.3 image that will work with a Raspberry Pi 4, However to make this a stable and maintainable system you will need to do some additional work.
-
-Rather than modify our base image, we use a [cloud-init](https://cloudinit.readthedocs.io/en/latest/topics/capabilities.html) strategy to allow us to bootstrap and further customize our installed image by performing tasks on first boot. For details, see our [cloud-init page](cloud-init.html).
-
-## More on Kernel Boot Parameters
-Kernel boot parameters are passed via the file `cmdline.txt` located on the boot partition.
-
-The stock value for this (which assumes booting from and using the microSD card as the root volume) is as follows:
-
-```
-net.ifnames=0 dwc_otg.lpm_enable=0 console=ttyAMA0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait
-```
-
-When preparing a configuration to boot from microSD but use a USB3 drive as the root volume (for better performance and more storage) modify the `root=` parameter to `root=/dev/sda2` (assuming your root partition is the 2nd on the drive which will be the case if you use the image we prepared above). So the modified contents of `cmdline.txt` are:
-
-```
-net.ifnames=0 dwc_otg.lpm_enable=0 console=ttyAMA0,115200 console=tty1 root=/dev/sda2 rootfstype=ext4 elevator=deadline rootwait
-```
+The script _clean.sh_ cleans (removes) built assets and downloaded software.
 
 ## Images
 
