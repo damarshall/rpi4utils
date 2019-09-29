@@ -20,7 +20,7 @@ kubectl apply -f conf/metallb/config.yaml
 # we'll use this rather than Traefik as it's mainstream and easier to config
 echo -e "\n\ndeploying nginx-ingress-controller..."
 kubectl apply -f conf/ingress-nginx/mandatory.yaml
-kubectl apply -f conf/ingress-nginx/service-nodeport.yaml
+kubectl apply -f conf/ingress-nginx/service-loadbalancer.yaml
 
 # we're going to do a helm chart install. Check if helm is here, if not, install
 which helm > /dev/null
