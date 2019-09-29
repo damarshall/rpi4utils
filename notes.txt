@@ -1,0 +1,6 @@
+TODO: figure this out
+the messages begin to appear as soon as a Type: LoadBalancer deployment is made
+
+Sep 29 15:52:25 dm1 k3s[447]: E0929 15:52:25.375911     447 controller.go:117] error syncing 'ingress-nginx/ingress-nginx': handler svccontroller: Operation cannot be fulfilled on  "svccontroller": delaying object set, requeuing
+Sep 29 15:52:25 dm1 k3s[447]: E0929 15:52:25.575784     447 controller.go:117] error syncing 'openfaas/gateway-external': handler svccontroller: Operation cannot be fulfilled on  "svccontroller": delaying object set, requeuing
+Sep 2
