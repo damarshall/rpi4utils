@@ -11,7 +11,7 @@ NR==1 {
 }
 NR > 1 {
 	split($1,vals, ",")
-	clusterip = vals[4]
+	clusterip = vals[3]
 	hostname  = vals[2]
 	printf("%s\t%s\n", clusterip, hostname)
 }
