@@ -1,8 +1,8 @@
-if [ -z "$RPNODES" ]
-then
-	RPNODES="pi1 pi2 pi3 pi4"
-fi
-if [ -z "$RPUSER" ]
-then
-	RPUSER="ubuntu"
-fi
+# ' '-seperated list of node hostnames
+RPNODES="${RPNODES:-pi1 pi2 pi3 pi4}"
+# service account to use for ssh
+RPUSER="${RPUSER:-ubuntu}"
+# OpenFaaS username
+OFUSER="${OFUSER:-admin}"
+# OpenFaaS user password
+OFPASSWD="${OFPASSWD:-s3cr34p455wrd}"
