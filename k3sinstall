@@ -41,7 +41,7 @@ do
 	if [ $nnum -eq 1 ];then
 		masterip=$nodeip
 		echo "installing k3s on $node as cluster master node..."
-		k3sup install --ip $masterip --user $RPUSER --k3s-extra-args '--no-deploy traefik'
+		k3sup install --ip $masterip --user $RPUSER --k3s-extra-args '--no-deploy traefik --no-deploy servicelb'
 		#k3sup install --ip $masterip --user $RPUSER
 	else
 		echo "installing k3s on $node as a cluster worker node..."
