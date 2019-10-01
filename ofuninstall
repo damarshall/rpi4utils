@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# TODO: undeploy functions first
+helm delete --purge openfaas
+kubectl delete namespace openfaas openfaas-fn
