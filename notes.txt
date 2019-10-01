@@ -1,6 +1,20 @@
-TODO: figure this out
 the messages begin to appear as soon as a Type: LoadBalancer deployment is made
 
 Sep 29 15:52:25 dm1 k3s[447]: E0929 15:52:25.375911     447 controller.go:117] error syncing 'ingress-nginx/ingress-nginx': handler svccontroller: Operation cannot be fulfilled on  "svccontroller": delaying object set, requeuing
 Sep 29 15:52:25 dm1 k3s[447]: E0929 15:52:25.575784     447 controller.go:117] error syncing 'openfaas/gateway-external': handler svccontroller: Operation cannot be fulfilled on  "svccontroller": delaying object set, requeuing
 Sep 2
+
+The issue was servicelb. Modified k3sinstall to pass the option '--no-deploy servicelb' to k3s server
+
+Linkerd command line substitution for install:
+
+linkerd install |  sed 's/gcr.io\/linkerd-io/linkerd2arm64/g' | kubectl apply -f -
+
+Here's the image list, several of these will need to have tags added and be pushed:
+
+image: linkerd2arm64/controller:stable-2.5.0
+image: linkerd2arm64/grafana:stable-2.5.0
+image: linkerd2arm64/proxy-init:v1.1.0
+image: linkerd2arm64/proxy:stable-2.5.0
+image: linkerd2arm64/web:stable-2.5.0
+
