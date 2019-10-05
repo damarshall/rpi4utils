@@ -1,5 +1,13 @@
 #!/bin/bash
 
-# TODO: undeploy functions first
+# undeploy functions first
+namespace="openfaas-fn"
+ofdeps=`kubectl get deployments -n $namespace | awk 'NR > 1 {print $1}'`
+
+for ofdep in $ofdeps
+do
+	kubectl delete deployment $ofdep -n $namespace
+done
+
 helm delete --purge openfaas
 kubectl delete namespace openfaas openfaas-fn
