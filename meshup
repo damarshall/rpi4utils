@@ -1,0 +1,15 @@
+#!/bin/bash
+echo "meshing openfaas namespace deployments..."
+kubectl -n openfaas get deploy gateway -o yaml | linkerd inject --skip-outbound-ports=4222 - | kubectl apply -f -
+kubectl -n openfaas get deploy/basic-auth-plugin -o yaml | linkerd inject - | kubectl apply -f -
+kubectl -n openfaas get deploy/faas-idler -o yaml | linkerd inject - | kubectl apply -f -
+kubectl -n openfaas get deploy/queue-worker -o yaml | linkerd inject  --skip-outbound-ports=4222 - | kubectl apply -f -
+kubectl -n openfaas get deploy/nats -o yaml | linkerd inject  --skip-outbound-ports=4222 - | kubectl apply -f -
+
+echo "annotating openfaas-fn so functions are automatically meshed on deployment"
+kubectl annotate namespace openfaas-fn linkerd.io/inject=enabled
+
+echo "meshing nginx ingress..."
+kubectl -n ingress-nginx get deploy/nginx-ingress-controller -o yaml | linkerd inject - | kubectl apply -f -
+
+echo "we are meshed. To explore, try 'linkerd dashboard &'"
