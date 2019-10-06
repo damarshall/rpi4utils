@@ -22,6 +22,10 @@ echo -e "\n\ndeploying nginx-ingress-controller..."
 kubectl apply -f conf/ingress-nginx/mandatory.yaml
 kubectl apply -f conf/ingress-nginx/service-loadbalancer.yaml
 
+# linkerd2
+echo -e "\n\ndeploying linkerd2 service mesh..."
+kubectl apply -f conf/linkerd/
+
 # we're going to do a helm chart install. Check if helm is here, if not, install
 which helm > /dev/null
 OUT=$?
@@ -38,5 +42,7 @@ helm init --tiller-image=jessestuart/tiller --skip-refresh --upgrade --service-a
 
 echo -e "\nuse 'kubectl get pod -n kube-system' to check tiller readiness"
 kubectl get pod -n kube-system -o wide
+echo -e "\nand use 'kubectl get pod -n linkerd' to check linkerd readiness"
+kubectl get pod -n linkerd -o wide
 
-echo -e "\nEnsure tiller is deployed and ready, then try './ofinstall' next"
+echo -e "\nEnsure both tiller and linkerd are deployed and ready, then try './ofinstall' next"
