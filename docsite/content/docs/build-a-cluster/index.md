@@ -305,6 +305,9 @@ ofinstall
 ```
 
 Admin creds are copied into the file `ofcreds.txt` in the local directory.
+Alternatively, you can set up values in advance in your `~/.rpicrc` file -
+simply create and populate the variables _$OFUSER_ and _$OFPASSWD_ exist
+before running `ofinstall`.
 
 OpenFaaS `gateway-external` is exposed on port 8080 on an external IP
 address assigned by `metallb`. You can find the details with the command:
@@ -317,8 +320,23 @@ For a quick verification, you can log into the OpenFaaS UI and deploy
 a function from the function store and invoke it.
 
 Go to `https://{externalip}:8080/ui` in your browser. You will be prompted
-for a basic-auth login. Use the credentials from `ofcreds.txt`.
+for a basic-auth login. Use the credentials from `ofcreds.txt` or pre-created
+in `~/.rpicrc`.
 
+You can check on OpenFaaS readiness via the script `ofcheck`.
+
+Finally, we need to mesh the _openfaas_ namespace  with linkerd. Simply run:
+
+```
+meshup
+```
+
+Have patience, it can take several minutes. Once the deployments are all 
+complete, access the linkerd webui via:
+
+```
+linkerd dashboard &
+```
 
 Refer to OpenFaaS tutorials and documentation to proceed from here.
 
