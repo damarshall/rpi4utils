@@ -22,7 +22,7 @@ In the picture below you can see 4 Pi4 boards, each with a Texas PoE HAT install
 
 ![CloudletCase](images/c4labscloudletcase.jpg)
 
-Operating temperatures, with the Texas PoE HATs installed are in the range of 54-57C.
+Operating temperatures, with the Texas PoE HATs installed are in the range of 44-49C.
 
 # Measuring Board Temperature
 You may measure the on-board temperature for your Pi 4 by issuing the following command:
