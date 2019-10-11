@@ -9,7 +9,4 @@ kubectl -n openfaas get deploy/nats -o yaml | linkerd inject  --skip-outbound-po
 echo "annotating openfaas-fn so functions are automatically meshed on deployment"
 kubectl annotate namespace openfaas-fn linkerd.io/inject=enabled
 
-echo "meshing nginx ingress..."
-kubectl -n ingress-nginx get deploy/nginx-ingress-controller -o yaml | linkerd inject - | kubectl apply -f -
-
 echo "we are meshed. To explore, try 'linkerd dashboard &'"
