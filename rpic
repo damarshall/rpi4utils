@@ -21,7 +21,7 @@ pssh() {
 	let i=0
 	for node in $RPNODES
 	do
-		echo "$node:" `ssh -l $RPUSER $node $cmd 2>&1` >> $outf &
+		echo "$node:" `timeout -k $RPTIMEOUT $RPTIMEOUT ssh -l $RPUSER $node $cmd 2>&1` >> $outf &
 		pids[i]=$!
 		let i++
 	done
@@ -34,7 +34,7 @@ rexec() {
 	let i=0
 	for node in $RPNODES
 	do
-		echo "$node:" `ssh -l $RPUSER $node $assu /bin/bash 2>&1 < $2` &>> $outf &
+		echo "$node:" `timeout -k $RPTIMEOUT $RPTIMEOUT ssh -l $RPUSER $node $assu /bin/bash 2>&1 < $2` &>> $outf &
 		pids[i]=$!
 		let i++
 	done
