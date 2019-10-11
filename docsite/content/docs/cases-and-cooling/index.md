@@ -18,9 +18,9 @@ With heatsinks installed and the case fan operating, a Pi 4 reports an operating
 # The Cloudlet Case
 This is another case from [c4labs](https://www.c4labs.com/product/8-slot-stackable-cluster-case-raspberry-pi-3b-and-other-single-board-computers-color-options/), this time it allows up to 8 Pi 4 boards to be installed in a cluster case.
 
-In the picture below you can see 4 Pi4 boards, each with a Texas PoE HAT installed. To the right of the board you can see the two additional case fans.
+In the picture below you can see 4 Pi4 boards, each with a Texas PoE HAT installed. Each board is plugged into a PoE port on a YuanLey switch and has a Kingston A400 drive attached.
 
-![CloudletCase](images/c4labscloudletcase.jpg)
+![CloudletCase](images/c4labscloudletcase2.jpg)
 
 Operating temperatures, with the Texas PoE HATs installed are in the range of 44-49C.
 
