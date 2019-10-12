@@ -44,4 +44,4 @@ helm upgrade -f conf/openfaas/values.yaml -f conf/openfaas/values-arm64.yaml ope
 # ...and set key-signing pair as secret for cert-manager
 kubectl create secret tls ca-key-pair --cert=conf/ca.crt --key=conf/ca.key --namespace openfaas
 
-echo "when deployments are complete (verify with 'ofcheck') run 'meshup' next"
+echo "when deployments are complete (verify with 'ofcheck') run 'oftls', then 'meshup' to finish"
