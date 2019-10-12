@@ -1,0 +1,7 @@
+#!/bin/bash
+
+. ~/.rpicrc
+
+# Create issuer and certificate within namespace
+kubectl apply -f conf/openfaas/openfaas-certs.yaml
+helm upgrade openfaas --namespace openfaas --reuse-values --values conf/openfaas/tls.yaml openfaas/openfaas
