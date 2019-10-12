@@ -17,15 +17,15 @@ helm repo add openfaas https://openfaas.github.io/faas-netes/
 # if we want load-balancer and ingress make sure these options are uncommented
 # docs say: if ingress.enabled=true then exposeServices should be false, but not true if LB
 OPTIONS=""
-OPTIONS=$OPTIONS" --set serviceType=LoadBalancer"
-#OPTIONS=$OPTIONS" --set exposeServices=false"
+#OPTIONS=$OPTIONS" --set serviceType=LoadBalancer"
+OPTIONS=$OPTIONS" --set exposeServices=false"
 OPTIONS=$OPTIONS" --set ingress.enabled=true"
 OPTIONS=$OPTIONS" --set faasnetes.httpProbe=true"	# httpProbe is more efficient than exec
 OPTIONS=$OPTIONS" --set queueWorker.replicas=3"		# HA
-OPTIONS=$OPTIONS" --set gateway.replicas=3"		# HA
+OPTIONS=$OPTIONS" --set gateway.replicas=3"			# HA
 OPTIONS=$OPTIONS" --set faasIdler.replicas=3"		# HA
 OPTIONS=$OPTIONS" --set faasIdler.dryRun=false"		# not dry runs, perform real scaledown
-OPTIONS=$OPTIONS" --set psp=true"			# create pod security policies
+OPTIONS=$OPTIONS" --set psp=true"					# create pod security policies
 OPTIONS=$OPTIONS" --set nats.enableMontitoring=true"
 
 # generate a random password
@@ -41,12 +41,7 @@ kubectl -n openfaas create secret generic basic-auth --from-literal=basic-auth-u
 helm repo update
 helm upgrade -f conf/openfaas/values.yaml -f conf/openfaas/values-arm64.yaml openfaas --install openfaas/openfaas --namespace openfaas --set basic_auth=true --set functionNamespace=openfaas-fn $OPTIONS
 
-# ...and install a cert-manager
-#kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.10/deploy/manifests/00-crds.yaml
-#kubectl create namespace cert-manager
-#kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
-#helm repo add jetstack https://charts.jetstack.io
-#helm repo update
-#helm install --name cert-manager --namespace cert-manager --version v0.10.0 jetstack/cert-manager
+# ...and set key-signing pair as secret for cert-manager
+kubectl create secret tls ca-key-pair --cert=conf/ca.crt --key=conf/ca.key --namespace openfaas
 
 echo "when deployments are complete (verify with 'ofcheck') run 'meshup' next"
