@@ -4,6 +4,8 @@ RPNODES="${RPNODES:-pi1 pi2 pi3 pi4}"
 RPUSER="${RPUSER:-ubuntu}"
 # timeout for cluster commands, value in seconds
 RPTIMEOUT="${RPTIMEOUT:-20s}"
+# domain for our cluster
+RPDOMAIN="${RPDOMAIN:-cluster.local}"
 # OpenFaaS username
 OFUSER="${OFUSER:-admin}"
 # OpenFaaS user password
