@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. ~/.rpicrc
+
 #install kubectl
 
 # metrics-server (slightly tuned config for arm64)
@@ -21,6 +23,19 @@ kubectl apply -f conf/metallb/config.yaml
 echo -e "\n\ndeploying nginx-ingress-controller..."
 kubectl apply -f conf/ingress-nginx/mandatory.yaml
 kubectl apply -f conf/ingress-nginx/service-loadbalancer.yaml
+
+#cert-manager
+echo -e "\n\ndeploying cert-manager..."
+kubectl create namespace cert-manager
+kubectl apply -f conf/cert-manager/cert-manager.yaml
+kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
+
+# generate key-signing pair for issuer (one-time only)
+if [ ! -f "conf/ca.key" ]; then
+	echo -e "\n\ngenerating a signing key pair in conf/..."
+	openssl genrsa -out conf/ca.key 2048
+	openssl req -x509 -new -nodes -key conf/ca.key -subj "/CN=${RPDOMAIN}" -days 3650 -reqexts v3_req -extensions v3_ca -out conf/ca.crt
+fi
 
 # linkerd2
 echo -e "\n\ndeploying linkerd2 service mesh..."
