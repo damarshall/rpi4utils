@@ -28,3 +28,9 @@ basicAuthPlugin:
   image: openfaas/basic-auth-plugin:0.17.0-arm64
   replicas: 1
 
+ingress:
+  hosts:
+    - host: gateway.davidamarshall.me  # Replace with gateway.example.com if public-facing
+      serviceName: gateway
+      servicePort: 8080
+      path: /
