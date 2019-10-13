@@ -1,0 +1,35 @@
+#!/bin/bash
+
+. ~/.rpicrc
+
+# arm64/aarch64 is not supported on official builds, we'll use a multi-arch rebuild
+echo -e "\n\nundeploying tiller..."
+helm reset
+kubectl delete clusterrolebinding tiller
+
+# linkerd2
+echo -e "\n\nundeploying linkerd2 service mesh..."
+kubectl delete -f conf/linkerd/
+
+#cert-manager
+echo -e "\n\nundeploying cert-manager..."
+kubectl delete -f conf/cert-manager/cert-manager.yaml
+kubectl delete namespace cert-manager
+
+# ingress-nginx
+echo -e "\n\nundeploying nginx-ingress-controller..."
+kubectl delete -f conf/ingress-nginx/service-loadbalancer.yaml
+kubectl delete -f conf/ingress-nginx/mandatory.yaml
+
+# metallb 
+echo -e "\n\nundeploying metallb load-balancer..."
+kubectl delete -f conf/metallb/config.yaml
+kubectl delete -f conf/metallb/metallb.yaml
+
+# standard k8s dashboard
+echo -e "\n\nundeploying kubernetes dashboard..."
+kubectl delete -f conf/dashboard/arm64deployment.yaml
+
+# metrics-server (slightly tuned config for arm64)
+echo "undeploying metrics-server..."
+kubectl delete -f conf/metrics-server/
