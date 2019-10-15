@@ -1,4 +1,7 @@
-commonLabels:
-	app: myapp
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+images:
+  - name: k8s.gcr.io/kubernetes-dashboard-amd64 # match images with this name
+    newName: k8s.gcr.io/kubernetes-dashboard-arm64 # override the name
 resources:
-- deployment.yaml
+- kubernetes-dashboard.yaml
