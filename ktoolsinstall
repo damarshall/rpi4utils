@@ -6,7 +6,8 @@
 
 # metrics-server (slightly tuned config for arm64)
 echo "deploying metrics-server..."
-kubectl create -k conf/metrics-server/
+kubectl create -f conf/metrics-server/
+kubectl apply  -k conf/metrics-server/
 
 # standard k8s dashboard
 echo -e "\n\ndeploying kubernetes dashboard..."
