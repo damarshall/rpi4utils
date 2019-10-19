@@ -29,10 +29,7 @@ spec:
         emptyDir: {}
       containers:
       - name: metrics-server
-        args:
-        - --logtostderr
-        - --v=2
-        image: k8s.gcr.io/metrics-server-arm64:v0.3.4
+        image: k8s.gcr.io/metrics-server-amd64:v0.3.6
         imagePullPolicy: Always
         volumeMounts:
         - name: tmp-dir

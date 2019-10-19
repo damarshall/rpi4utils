@@ -6,11 +6,11 @@
 
 # metrics-server (slightly tuned config for arm64)
 echo "deploying metrics-server..."
-kubectl create -f conf/metrics-server/
+kubectl create -k conf/metrics-server/
 
 # standard k8s dashboard
 echo -e "\n\ndeploying kubernetes dashboard..."
-kubectl apply -f conf/dashboard/arm64deployment.yaml
+kubectl apply -k conf/dashboard/
 # TODO: need to create a user and bearer token
 
 # we're going to use metallb as a load-balancer with a simple layer-2 config
@@ -21,8 +21,7 @@ kubectl apply -f conf/metallb/config.yaml
 # ingress-nginx
 # we'll use this rather than Traefik as it's mainstream and easier to config
 echo -e "\n\ndeploying nginx-ingress-controller..."
-kubectl apply -f conf/ingress-nginx/mandatory.yaml
-kubectl apply -f conf/ingress-nginx/service-loadbalancer.yaml
+kubectl apply -k conf/ingress-nginx/
 
 #cert-manager
 echo -e "\n\ndeploying cert-manager..."
