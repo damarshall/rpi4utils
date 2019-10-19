@@ -23,11 +23,12 @@ kubectl apply -f conf/metallb/config.yaml
 # we'll use this rather than Traefik as it's mainstream and easier to config
 echo -e "\n\ndeploying nginx-ingress-controller..."
 kubectl apply -k conf/ingress-nginx/
+kubectl apply -f conf/ingress-nginx/service-loadbalancer.yaml
 
 #cert-manager
 echo -e "\n\ndeploying cert-manager..."
 kubectl create namespace cert-manager
-kubectl apply -f conf/cert-manager/cert-manager.yaml
+kubectl apply -k conf/cert-manager/
 kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
 
 # generate key-signing pair for issuer (one-time only)
