@@ -18,8 +18,7 @@ kubectl delete namespace cert-manager
 
 # ingress-nginx
 echo -e "\n\nundeploying nginx-ingress-controller..."
-kubectl delete -f conf/ingress-nginx/service-loadbalancer.yaml
-kubectl delete -f conf/ingress-nginx/mandatory.yaml
+kubectl delete -k conf/ingress-nginx/
 
 # metallb 
 echo -e "\n\nundeploying metallb load-balancer..."
@@ -28,8 +27,9 @@ kubectl delete -f conf/metallb/metallb.yaml
 
 # standard k8s dashboard
 echo -e "\n\nundeploying kubernetes dashboard..."
-kubectl delete -f conf/dashboard/arm64deployment.yaml
+kubectl delete -k conf/dashboard/
 
 # metrics-server (slightly tuned config for arm64)
 echo "undeploying metrics-server..."
+kubectl delete -k conf/metrics-server/
 kubectl delete -f conf/metrics-server/
