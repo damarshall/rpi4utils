@@ -4,4 +4,10 @@ images:
   - name: k8s.gcr.io/metrics-server-amd64 # match images with this name
     newName: k8s.gcr.io/metrics-server-arm64 # override the name
 resources:
-- metrics-server-deployment.yaml
+- aggregated-metrics-reader.yaml  
+- auth-delegator.yaml  
+- auth-reader.yaml
+- metrics-apiservice.yaml  
+- metrics-server-deployment.yaml  
+- metrics-server-service.yaml
+- resource-reader.yaml

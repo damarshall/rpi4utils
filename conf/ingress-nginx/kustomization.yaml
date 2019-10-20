@@ -5,3 +5,4 @@ images:
     newName: quay.io/kubernetes-ingress-controller/nginx-ingress-controller-arm64
 resources:
 - mandatory.yaml
+- service-loadbalancer.yaml
