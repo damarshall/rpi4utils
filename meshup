@@ -1,10 +1,22 @@
 #!/bin/bash
+echo "meshing ingress-nginx, kube-system, cert-manager..."
+kubectl -n kube-system get deploy/kubernetes-dashboard -o yaml | linkerd inject --skip-outbound-ports=4222 - | kubectl apply -f -
+kubectl -n kube-system get deploy/metrics-server -o yaml | linkerd inject --skip-outbound-ports=4222 - | kubectl apply -f -
+kubectl -n kube-system get deploy/tiller-deploy -o yaml | linkerd inject --skip-outbound-ports=4222 - | kubectl apply -f -
+kubectl -n ingress-nginx get deploy/nginx-ingress-controller -o yaml | linkerd inject --skip-outbound-ports=4222 - | kubectl apply -f -
+kubectl -n metallb-system get deploy/controller -o yaml | linkerd inject --skip-outbound-ports=4222 - | kubectl apply -f -
+kubectl -n cert-manager get deployment/cert-manager -o yaml | linkerd inject --skip-outbound-ports=4222 - | kubectl apply -f -
+kubectl -n cert-manager get deployment/cert-manager-cainjector -o yaml | linkerd inject --skip-outbound-ports=4222 - | kubectl apply -f -
+kubectl -n cert-manager get deployment/cert-manager-webhook -o yaml | linkerd inject --skip-outbound-ports=4222 - | kubectl apply -f -
+
 echo "meshing openfaas namespace deployments..."
-kubectl -n openfaas get deploy gateway -o yaml | linkerd inject --skip-outbound-ports=4222 - | kubectl apply -f -
+kubectl -n openfaas get deploy/gateway -o yaml | linkerd inject --skip-outbound-ports=4222 - | kubectl apply -f -
 kubectl -n openfaas get deploy/basic-auth-plugin -o yaml | linkerd inject - | kubectl apply -f -
 kubectl -n openfaas get deploy/faas-idler -o yaml | linkerd inject - | kubectl apply -f -
 kubectl -n openfaas get deploy/queue-worker -o yaml | linkerd inject  --skip-outbound-ports=4222 - | kubectl apply -f -
-kubectl -n openfaas get deploy/nats -o yaml | linkerd inject  --skip-outbound-ports=4222 - | kubectl apply -f -
+kubectl -n openfaas get deploy/prometheus -o yaml | linkerd inject  --skip-outbound-ports=4222 - | kubectl apply -f -
+kubectl -n openfaas get deploy/alertmanager -o yaml | linkerd inject  --skip-outbound-ports=4222 - | kubectl apply -f -
+kubectl -n openfaas get deploy/nats -o yaml | linkerd inject  --skip-inbound-ports=4222 - | kubectl apply -f -
 
 echo "annotating openfaas-fn so functions are automatically meshed on deployment"
 kubectl annotate namespace openfaas-fn linkerd.io/inject=enabled
