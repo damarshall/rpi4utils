@@ -1,10 +1,65 @@
 ---
 title: 'Preparing an Image'
-date: 2019-02-11T19:27:37+10:00
+date: 2020-03-24T19:27:37+10:00
 draft: false
 weight: 3
-summary: Learn how to prepare a bootable, maintainable Ubuntu 18.04.3 (arm64) image for a Raspberry Pi 4.
+summary: Learn how to prepare a bootable, maintainable Ubuntu 18.04.3 (arm64) image with USB root for a Raspberry Pi 4.
 ---
+## Build for Official RPi 4 ARM64 Ubuntu 18.04.4 server with USB Root
+As of Feb-2020 a [pre-installed Bionic image](https://wiki.ubuntu.com/ARM/RaspberryPi) is available from Ubuntu, 
+therefore this method supercedes the unofficial release method documented further down this page.
+
+A Raspberry Pi 4 doesn't yet support USB booting, so we'll use a method where we boot the kernel from
+an SD card but tell the kernel to use our USB drive for the root partition. This means we only use the
+SD card as a bootstrap; subsequent I/O happens on the SSD drive used for root.
+
+The official Ubuntu build uses the [U-Boot bootloader](https://www.denx.de/wiki/U-Boot). We will switch to the RPi bootloader
+using the [method documented on the Ubuntu wiki](https://wiki.ubuntu.com/ARM/RaspberryPi#Change_the_bootloader).
+
+This involves editing two files in the boot partition of the official image:
+- `config.txt` - the master boot configuration (this is where we change from U-boot to the RPi bootloader)
+- `nobtcmd.txt` - this is where we modify the kernel boot parameters, specifying a USB drive for root
+
+The modified `config.txt` file looks like this:
+
+```
+[pi4]
+kernel=vmlinuz
+initramfs initrd.img followkernel
+max_framebuffers=2
+
+[pi2]
+kernel=uboot_rpi_2.bin
+
+[pi3]
+kernel=uboot_rpi_3.bin
+
+[all]
+arm_64bit=1
+#device_tree_address=0x03000000
+
+# The following settings are "defaults" expected to be overridden by the
+# included configuration. The only reason they are included is, again, to
+# support old firmwares which don't understand the "include" command.
+
+enable_uart=1
+cmdline=nobtcmd.txt
+
+include syscfg.txt
+include usercfg.txt
+
+```
+
+and the corresponding modified `nobtcmd.txt` looks like this:
+
+```
+net.ifnames=0 dwc_otg.lpm_enable=0 console=ttyAMA0,115200 console=tty1 root=/dev/sda2 rootfstype=ext4 elevator=deadline rootwait fixrtc
+```
+
+If you plan on using [cloud-init bootstrapping](/docs/cloud-init/) you should also copy pre-prepared `cloud-init` files
+into the `system-boot` partition on your prepared image (Ubuntu provides benign defaults in the pre-installed image
+which you should override with your site specifics).
+
 ## Build for Unofficial RPi 4 ARM64 Ubuntu 18.04.3 server
 
 This builds on the work of James Chambers and others begun in [this blog post](https://jamesachambers.com/raspberry-pi-4-ubuntu-server-desktop-18-04-3-image-unofficial/)
